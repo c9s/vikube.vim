@@ -40,41 +40,44 @@ Commands
 
 - `:VikubeServiceList` - Open the service list buffer.
 
+- `:VikubePVCList` - Open the service list buffer.
+
 - `:VikubeTop` - Open the top buffer.
 
 VikubeContextList
 -----------------
 
-- `S` - Switch to the selected context.
-- `R` - Rename the selected context.
+- `s` - Switch to the selected context.
+- `r` - Rename the selected context.
 - `D` - Delete the selected context.
 
 VikubeNodeList
 --------------
 
-- `L` - Label the selected node.  (Input form: `Label=Value Label2=Value2`)
-- `S` - describe the selected pod.
-- `U` - Update list.
+- `l` - Label the selected node.  (Input form: `Label=Value Label2=Value2`)
+- `d` - describe the selected node.
+- `u` - Update list.
 
 VikubePodList
 -------------
 
 - `D` - delete the selected pod.
-- `S` - describe the selected pod.
-- `U` - Update list.
+- `d` - describe the selected pod.
+- `s` - describe the selected pod.
+- `u` - Update list.
 
 VikubeServiceList
 -----------------
 
 - `D` - delete the selected service.
-- `S` - describe the selected pod.
+- `d` - describe the selected service.
 
 VikubeTop
 ---------
 
-- `N` - switch to nodes top.
-- `P` - switch to pods top.
-- `S` - describe the selected pod.
+- `n` - switch to nodes top.
+- `p` - switch to pods top.
+- `d` - describe the selected pod or node.
 
 Configuration
 ---------------
@@ -97,6 +100,13 @@ Default Mapping
 - `<leader>kt` - Open the **k**ubernetes **t**op buffer.
 
 - `<leader>kpvc` - Open the **k**ubernetes persistent volume claim buffer.
+
+Changelogs
+----------
+
+### Sun Dec 17 17:04:01 2017
+
+- Change all action keys to lower case but keep the deletion in uppercase.
 
 
 License

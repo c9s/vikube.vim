@@ -95,9 +95,9 @@ fun! s:VikubeServiceList()
 
   " local bindings
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
-  nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
+  nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
-  nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> d     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentService +^\*.*+

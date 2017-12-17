@@ -76,9 +76,9 @@ fun! s:VikubeContextList()
   setfiletype kcontextlist
 
   " local bindings
-  nnoremap <script><buffer> S     :cal <SID>handleSwitchContext()<CR>
+  nnoremap <script><buffer> s     :cal <SID>handleSwitchContext()<CR>
+  nnoremap <script><buffer> r     :cal <SID>handleRenameContext()<CR>
   nnoremap <script><buffer> D     :cal <SID>handleDeleteContext()<CR>
-  nnoremap <script><buffer> R     :cal <SID>handleRenameContext()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentContext +^\*.*+

@@ -97,11 +97,11 @@ fun! s:VikubeTop()
   setfiletype ktop
 
   " local bindings
-  nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
-  nnoremap <script><buffer> N     :cal <SID>handleNodeMode()<CR>
-  nnoremap <script><buffer> P     :cal <SID>handlePodMode()<CR>
+  nnoremap <script><buffer> n     :cal <SID>handleNodeMode()<CR>
+  nnoremap <script><buffer> p     :cal <SID>handlePodMode()<CR>
+  nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
-  nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> d     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
 endf

@@ -89,7 +89,7 @@ endf
 
 fun! s:VikubeNodeList()
   tabnew
-  silent file KNodeList
+  silent exec "silent file K" . s:object_label . "List"
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
   setlocal cursorline
@@ -98,10 +98,10 @@ fun! s:VikubeNodeList()
   exec 'setfiletype k' . s:object_type . 'list'
 
   " local bindings
-  nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
-  nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
+  nnoremap <script><buffer> l     :cal <SID>handleLabel()<CR>
+  nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
-  nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> d     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
 endf

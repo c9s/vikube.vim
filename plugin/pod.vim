@@ -1,16 +1,13 @@
-let s:object_type = 'pod'
-let s:object_label = 'Pod'
-
 fun! s:source()
-  return system("kubectl get " . s:object_type . " -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+  return system("kubectl get " . b:object . " -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
 fun! s:help()
-  cal g:Help.reg("Kubernetes " . s:object_label . ":",
-    \" D     - Delete " . s:object_label . "\n" .
-    \" U     - Update List\n" .
-    \" S     - Describe " . s:object_label . "\n" .
-    \" Enter - Describe " . s:object_label . "\n"
+  cal g:Help.reg("Kubernetes object=" . b:object . " namespace=" . b:namespace,
+    \" D     - Delete " . b:object . "\n" .
+    \" u     - Update List\n" .
+    \" d     - Describe " . b:object . "\n" .
+    \" Enter - Describe " . b:object . "\n"
     \,1)
 endf
 
@@ -37,7 +34,7 @@ fun! s:handleDelete()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
-  let out = system('kubectl delete ' . s:object_type . ' ' . shellescape(key))
+  let out = system('kubectl delete ' . b:object . ' ' . shellescape(key))
   redraw | echomsg split(out, "\n")[0]
   cal s:render()
 endf
@@ -46,7 +43,7 @@ fun! s:handleDescribe()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
-  let out = system('kubectl describe ' . s:object_type . ' ' . key)
+  let out = system('kubectl describe ' . b:object . ' ' . key)
   botright new
   silent exec "file " . key
   setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
@@ -55,7 +52,7 @@ fun! s:handleDescribe()
   silent put=out
   redraw
   silent normal ggdd
-  silent exec "setfiletype kdescribe" . s:object_type
+  silent exec "setfiletype kdescribe" . b:object
   setlocal nomodifiable
 
   nnoremap <script><buffer> q :q<CR>
@@ -86,29 +83,32 @@ fun! s:render()
   set nomodifiable
 endf
 
-fun! s:VikubePodList()
+fun! s:Vikube(object)
   tabnew
-  silent exec "silent file K" . s:object_label . "List"
+  let b:namespace = "default"
+  let b:object = a:object
+  exec "silent file VikubeExplorer"
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
   setlocal cursorline
   setlocal updatetime=5000
   cal s:render()
-  silent exec "setfiletype k" . s:object_type . "list"
+  silent exec "setfiletype k" . b:object . "list"
 
   " local bindings
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
-  nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
+  nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
-  nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> d     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+
   hi link CurrentPod Identifier
 endf
 
-com! VikubePodList :cal s:VikubePodList()
+com! VikubePodList :cal s:Vikube("pod")
+com! Vikube :cal s:Vikube("pod")
 
 if exists("g:vikube_autoupdate")
-  au! CursorHold KPodList :cal <SID>render()
+  au! CursorHold VikubeExplorer :cal <SID>render()
 endif
