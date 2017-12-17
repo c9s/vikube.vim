@@ -51,6 +51,18 @@ let g:kubernetes_common_resource_types = [
       \"service", 
       \"serviceaccount"]
 
+fun! g:KubernetesNamespaceCompletion(lead, cmd, pos)
+  let entries = vikube#get_namespaces()
+  cal filter(entries , 'v:val =~ "^' .a:lead. '"')
+  return entries
+endf
+
+fun! g:KubernetesResourceTypeCompletion(lead, cmd, pos)
+  let entries = g:kubernetes_resource_types
+  cal filter(entries , 'v:val =~ "^' .a:lead. '"')
+  return entries
+endf
+
 fun! s:source()
   let cmd = "kubectl get " . b:resource_type
   if b:wide
@@ -126,24 +138,6 @@ fun! s:handleDelete()
   cal s:render()
 endf
 
-fun! s:handlePrevResourceType()
-  let x = index(g:kubernetes_common_resource_types, b:resource_type)
-  let x = x - 1
-  if x < 0
-    let x = len(g:kubernetes_common_resource_types) - 1
-  endif
-  let b:resource_type = g:kubernetes_common_resource_types[x]
-
-  let b:source_changed = 1
-  cal s:render()
-endf
-
-
-fun! g:KubernetesNamespaceCompletion(lead, cmd, pos)
-  let entries = split(system("kubectl get namespace --no-headers | awk '{ print $1 }'"))
-  cal filter(entries , 'v:val =~ "^' .a:lead. '"')
-  return entries
-endf
 
 func s:handleNamespaceChange()
   cal inputsave()
@@ -157,12 +151,6 @@ func s:handleNamespaceChange()
 endf
 
 
-fun! g:KubernetesResourceTypeCompletion(lead, cmd, pos)
-  let entries = g:kubernetes_resource_types
-  cal filter(entries , 'v:val =~ "^' .a:lead. '"')
-  return entries
-endf
-
 func s:handleResourceTypeChange()
   cal inputsave()
   let new_resource_type = input('Resource Type:', b:resource_type, 'customlist,KubernetesResourceTypeCompletion')
@@ -170,6 +158,22 @@ func s:handleResourceTypeChange()
   if len(new_resource_type) > 0
     let b:resource_type = new_resource_type
   endif
+  let b:source_changed = 1
+  cal s:render()
+endf
+
+
+
+
+
+fun! s:handlePrevResourceType()
+  let x = index(g:kubernetes_common_resource_types, b:resource_type)
+  let x = x - 1
+  if x < 0
+    let x = len(g:kubernetes_common_resource_types) - 1
+  endif
+  let b:resource_type = g:kubernetes_common_resource_types[x]
+
   let b:source_changed = 1
   cal s:render()
 endf
