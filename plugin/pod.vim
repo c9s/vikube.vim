@@ -72,8 +72,13 @@ endf
 fun! s:help()
   cal g:Help.reg(s:header(),
     \" D     - Delete " . b:resource_type . "\n" .
+    \" ]]    - Next resource type\n".
+    \" [[    - Previous resource type\n".
     \" u     - Update List\n" .
     \" w     - Toggle wide option\n" .
+    \" a     - Toggle all namespaces\n" .
+    \" n     - Switch namespace view\n" .
+    \" r     - Switch resource type view\n" .
     \" s     - Describe " . b:resource_type . "\n" .
     \" Enter - Describe " . b:resource_type . "\n"
     \,1)
@@ -113,9 +118,9 @@ endf
 
 fun! s:handleDelete()
   let key = s:key(getline('.'))
-  redraw | echomsg key
-
-  let out = system('kubectl delete ' . b:resource_type . ' ' . shellescape(key))
+  let cmd = 'kubectl delete ' . b:resource_type . ' ' . shellescape(key)
+  redraw | echomsg cmd
+  let out = system()
   redraw | echomsg split(out, "\n")[0]
   let b:source_changed = 1
   cal s:render()
