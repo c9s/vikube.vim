@@ -1,3 +1,15 @@
+fun! s:source()
+  " return system("kubectl config get-contexts | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k2\"}'")
+  return system("kubectl config get-contexts | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k2\"}'")
+endf
+
+fun! s:help()
+  cal g:Help.reg("Kubernetes Contexts: kubectl config get-contexts",
+    \" D - Delete Context\n" .
+    \" R - Rename Context\n" .
+    \" S - Switch Context\n" 
+    \,1)
+endf
 
 fun! s:canonicalizeRow(row)
   return substitute(a:row, '^\*\?\s*' , '' , '')
@@ -41,20 +53,6 @@ fun! s:handleRenameContext()
   let out = system('kubectl config rename-context ' . shellescape(key) . ' ' . shellescape(newName))
   redraw | echomsg split(out, "\n")[0]
   cal s:render()
-endf
-" echo s:promptRemote()
-
-fun! s:source()
-  " return system("kubectl config get-contexts | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k2\"}'")
-  return system("kubectl config get-contexts | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k2\"}'")
-endf
-
-fun! s:help()
-  cal g:Help.reg("Kubernetes Contexts: kubectl config get-contexts",
-    \" D - Delete Context\n" .
-    \" R - Rename Context\n" .
-    \" S - Switch Context\n" 
-    \,1)
 endf
 
 fun! s:render()
