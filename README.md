@@ -4,11 +4,9 @@ Vikube - Operating Kubernetes Cluster from Vim, in Vim
 Screenshots
 -----------
 
-<img src="https://raw.githubusercontent.com/c9s/vikube.vim/master/assets/poddescribe.png" width="300"/>
-
-<img src="https://raw.githubusercontent.com/c9s/vikube.vim/master/assets/ktop.png" width="300"/>
-
-<img src="https://raw.githubusercontent.com/c9s/vikube.vim/master/assets/kpodlist.png" width="300"/>
+<img src="https://raw.githubusercontent.com/c9s/vikube.vim/master/assets/poddescribe.png" height="200"/>
+<img src="https://raw.githubusercontent.com/c9s/vikube.vim/master/assets/ktop.png" height="200"/>
+<img src="https://raw.githubusercontent.com/c9s/vikube.vim/master/assets/kpodlist.png" height="200"/>
 
 Install
 -------
