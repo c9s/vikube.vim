@@ -1,10 +1,13 @@
+let s:object_type = 'node'
+let s:object_label = 'Node'
+
 fun! s:source()
-  return system("kubectl get nodes -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+  return system("kubectl get " . s:object_type . " -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
 fun! s:help()
-  cal g:Help.reg("Kubernetes Nodes:",
-    \" L - Label Node\n" .
+  cal g:Help.reg("Kubernetes " . s:object_label . ":",
+    \" L - Label " . s:object_label . "\n" .
     \" U - Update List\n"
     \,1)
 endf
@@ -28,7 +31,7 @@ fun! s:handleUpdate()
   cal s:render()
 endf
 
-fun! s:handleLabelNode()
+fun! s:handleLabel()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
@@ -70,10 +73,10 @@ fun! s:VikubeNodeList()
   setlocal cursorline
   setlocal updatetime=5000
   cal s:render()
-  setfiletype knodelist
+  exec 'setfiletype k' . s:object_type . 'list'
 
   " local bindings
-  nnoremap <script><buffer> L     :cal <SID>handleLabelNode()<CR>
+  nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
 
   syn match Comment +^#.*+ 
