@@ -14,6 +14,14 @@ call vundle#begin()
 call vundle#end()
 ```
 
+And run:
+
+```
+:PluginInstall
+```
+
+See ![https://github.com/VundleVim/Vundle.vim](vundle) for more details.
+
 Commands
 --------
 
