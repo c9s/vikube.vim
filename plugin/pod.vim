@@ -279,7 +279,7 @@ fun! s:Vikube(resource_type)
   setlocal cursorline
   setlocal updatetime=5000
   cal s:render()
-  silent exec "setfiletype k" . b:resource_type . "list"
+  silent exec "setfiletype vikube-" . b:resource_type
 
   " local bindings
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
