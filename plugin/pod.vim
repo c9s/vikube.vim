@@ -1,5 +1,5 @@
+
 let g:kubernetes_resource_types = [
-      \  'all',
       \  'certificatesigningrequests',
       \  'clusterrolebindings',
       \  'clusterroles',
@@ -39,7 +39,17 @@ let g:kubernetes_resource_types = [
       \  'storageclasses',
       \ ]
 
-let g:kubernetes_common_resource_types = ["pod", "pvc", "pv", "statefulset", "deployment", "service", "serviceaccount"]
+let g:kubernetes_common_resource_types = [
+      \"pods", 
+      \"persistentvolumeclaims", 
+      \"persistentvolumes", 
+      \"statefulset", 
+      \"replicasets",
+      \"deployments", 
+      \"endpoints", 
+      \"replicasets", 
+      \"service", 
+      \"serviceaccount"]
 
 fun! s:source()
   let cmd = "kubectl get " . b:resource_type
@@ -51,6 +61,7 @@ fun! s:source()
   else
     let cmd = cmd . " --namespace=" . b:namespace
   endif
+  redraw | echomsg cmd
   return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
@@ -110,7 +121,7 @@ fun! s:handleDelete()
   cal s:render()
 endf
 
-fun! s:handlePrevObjectType()
+fun! s:handlePrevResourceType()
   let x = index(g:kubernetes_common_resource_types, b:resource_type)
   let x = x - 1
   if x < 0
@@ -149,7 +160,7 @@ endf
 
 func s:handleResourceTypeChange()
   cal inputsave()
-  let new_resource_type = input('Resource Type:', b:namespace, 'customlist,KubernetesResourceTypeCompletion')
+  let new_resource_type = input('Resource Type:', b:resource_type, 'customlist,KubernetesResourceTypeCompletion')
   cal inputrestore()
   if len(new_resource_type) > 0
     let b:resource_type = new_resource_type
@@ -159,7 +170,7 @@ func s:handleResourceTypeChange()
 endf
 
 
-fun! s:handleNextObjectType()
+fun! s:handleNextResourceType()
   let x = index(g:kubernetes_common_resource_types, b:resource_type)
   let x = x + 1
   if x >= len(g:kubernetes_common_resource_types)
@@ -222,7 +233,6 @@ fun! s:render()
   let save_cursor = getcurpos()
 
   setlocal modifiable
-  redraw
   normal ggdG
 
   if b:source_changed || !exists('b:source_cache')
@@ -236,7 +246,6 @@ fun! s:render()
   put=out
   normal ggdd
   cal s:help()
-  redraw
 
   call setpos('.', save_cursor)
 
@@ -274,8 +283,8 @@ fun! s:Vikube(object)
   nnoremap <script><buffer> a     :cal <SID>handleToggleAllNamepsace()<CR>
   nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
   nnoremap <script><buffer> r     :cal <SID>handleResourceTypeChange()<CR>
-  nnoremap <script><buffer> ]]     :cal <SID>handleNextObjectType()<CR>
-  nnoremap <script><buffer> [[     :cal <SID>handlePrevObjectType()<CR>
+  nnoremap <script><buffer> ]]     :cal <SID>handleNextResourceType()<CR>
+  nnoremap <script><buffer> [[     :cal <SID>handlePrevResourceType()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+
