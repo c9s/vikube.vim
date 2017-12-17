@@ -158,7 +158,55 @@ fun! s:handleLabel()
   cal s:render()
 endf
 
+func s:handleLogs()
+  if b:resource_type != "pods"
+    redraw | echomsg "logs are only for pods"
+    return
+  endif
 
+  let resource_type = b:resource_type
+  let key = s:key(getline('.'))
+  let cmd = "kubectl get pod " . key . " -o 'go-template' --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+  let out = system(cmd)
+  let containers = split(out)
+
+  if len(containers) == 1
+    let cont = containers[0]
+  else
+    cal inputsave()
+    " let cont = input('Container (' . join(containers, ',') . '):', '')
+    let items = containers[:]
+    let list = ['Select Container:'] + map(items, 'v:key + 1 . ") " . v:val')
+    let x = inputlist(list)
+    cal inputrestore()
+    if x > 0
+      let cont = containers[x - 1]
+    else
+      let cont = containers[0]
+    endif
+  endif
+
+  let cmd = "kubectl logs -c " . cont . ' ' . key
+  redraw | echomsg cmd
+
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
+  setlocal nowrap nocursorline
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  let out = system(cmd)
+  silent put=out
+  redraw
+  silent normal ggdd
+  silent exec "setfiletype vikube-logs"
+  setlocal nomodifiable
+
+  let endofline = line('$')
+  cal cursor(endofline, 0)
+
+  nnoremap <script><buffer> q :q<CR>
+endf
 
 func s:handleNamespaceChange()
   cal inputsave()
@@ -406,6 +454,7 @@ fun! s:Vikube(resource_type)
 
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
   nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
+  nnoremap <script><buffer> l     :cal <SID>handleLogs()<CR>
 
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
