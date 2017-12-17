@@ -2,7 +2,7 @@ let s:object_type = 'pvc'
 let s:object_label = 'PersistentVolumeClaim'
 
 fun! s:source()
-  return system("kubectl get " . s:object_type . " | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+  return system("kubectl get " . s:object_type . " -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
 fun! s:help()
