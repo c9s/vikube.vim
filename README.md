@@ -20,7 +20,7 @@ And run:
 :PluginInstall
 ```
 
-See ![https://github.com/VundleVim/Vundle.vim](vundle) for more details.
+See [https://github.com/VundleVim/Vundle.vim](vundle) for more details.
 
 Commands
 --------
