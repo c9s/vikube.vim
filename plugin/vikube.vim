@@ -19,12 +19,12 @@ let g:kubernetes_resource_types = [
       \  'limitranges' ,
       \  'namespaces' ,
       \  'networkpolicies' ,
-      \  'nodes' ,
-      \  'persistentvolumeclaims' ,
-      \  'persistentvolumes' ,
+      \  'nodes', 'no',
+      \  'persistentvolumeclaims', 'pvc',
+      \  'persistentvolumes', 'pv',
       \  'poddisruptionbudgets' ,
       \  'podpreset',
-      \  'pods' ,
+      \  'pods', 'po'
       \  'podsecuritypolicies' ,
       \  'podtemplates',
       \  'replicasets' ,
@@ -34,22 +34,22 @@ let g:kubernetes_resource_types = [
       \  'roles',
       \  'secrets',
       \  'serviceaccounts' ,
-      \  'services',
+      \  'services', 'svc',
       \  'statefulsets',
       \  'storageclasses',
       \ ]
 
 let g:kubernetes_common_resource_types = [
       \"pods", 
-      \"persistentvolumeclaims", 
+      \"persistentvolumeclaims",
       \"persistentvolumes", 
-      \"statefulset", 
+      \"statefulsets", 
       \"replicasets",
       \"deployments", 
       \"endpoints", 
       \"replicasets", 
-      \"service", 
-      \"serviceaccount"]
+      \"services", 
+      \"serviceaccounts"]
 
 let g:vikube_search_prefix = '> '
 
@@ -387,6 +387,10 @@ fun! s:Vikube(resource_type)
 
 endf
 
+" com! VikubeNodeList :cal s:Vikube("nodes")
+com! VikubePVList :cal s:Vikube("persistentvolumes")
+com! VikubePVCList :cal s:Vikube("persistentvolumeclaims")
+com! VikubeServiceList :cal s:Vikube("services")
 com! VikubePodList :cal s:Vikube("pods")
 com! Vikube :cal s:Vikube("pods")
 
