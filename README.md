@@ -43,6 +43,33 @@ Commands
 - `:VikubeTop` - Open the top buffer.
 
 
+VikubeNodeList
+--------------
+
+`L` - label the selected node.
+
+
+VikubePodList
+-------------
+
+`D` - delete the selected pod.
+
+
+VikubeServiceList
+-----------------
+
+`D` - delete the selected service.
+
+VikubeTop
+---------
+
+`N` - switch to nodes top.
+`P` - switch to pods top.
+
+
+
+
+
 Default Mapping
 ---------------
 
