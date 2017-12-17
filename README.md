@@ -53,6 +53,7 @@ VikubeNodeList
 --------------
 
 - `L` - Label the selected node.
+- `S` - describe the selected pod.
 - `U` - Update list.
 
 VikubePodList
@@ -66,12 +67,14 @@ VikubeServiceList
 -----------------
 
 - `D` - delete the selected service.
+- `S` - describe the selected pod.
 
 VikubeTop
 ---------
 
 - `N` - switch to nodes top.
 - `P` - switch to pods top.
+- `S` - describe the selected pod.
 
 
 Configuration

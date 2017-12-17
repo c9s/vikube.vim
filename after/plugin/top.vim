@@ -1,4 +1,3 @@
-
 fun! s:source()
   return system("kubectl top " . b:top_mode . " | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
@@ -44,7 +43,9 @@ fun! s:handleDescribe()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
-  let out = system('kubectl describe ' . b:top_mode . ' ' . key)
+  let top_mode = b:top_mode
+
+  let out = system('kubectl describe ' . top_mode . ' ' . key)
   botright new
   silent exec "file " . key
   setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
@@ -53,7 +54,7 @@ fun! s:handleDescribe()
   silent put=out
   redraw
   silent normal ggdd
-  silent exec "setfiletype kdescribe" . s:top_mode
+  silent exec "setfiletype kdescribe" . top_mode
   setlocal nomodifiable
 
   nnoremap <script><buffer> q :q<CR>
@@ -84,14 +85,14 @@ endf
 
 fun! s:VikubeTop()
   tabnew
-  silent file KTop
+  let b:top_mode = "pods"
 
+  silent file KTop
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
   setlocal cursorline
   setlocal updatetime=5000
 
-  let b:top_mode = "pods"
   cal s:render()
   setfiletype ktop
 
@@ -99,6 +100,8 @@ fun! s:VikubeTop()
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> N     :cal <SID>handleNodeMode()<CR>
   nnoremap <script><buffer> P     :cal <SID>handlePodMode()<CR>
+  nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
 endf
