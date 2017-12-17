@@ -32,8 +32,13 @@ fun! s:handleLabelNode()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
-  " let out = system('kubectl delete service ' . shellescape(key))
-  " redraw | echomsg split(out, "\n")[0]
+  cal inputsave()
+  let labels = input('Label:', '')
+  cal inputrestore()
+
+  let out = system('kubectl label node ' . shellescape(key) . ' ' . labels)
+  redraw | echomsg split(out, "\n")[0]
+
   cal s:render()
 endf
 
