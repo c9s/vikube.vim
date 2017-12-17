@@ -142,6 +142,22 @@ fun! s:handleDelete()
   cal s:render()
 endf
 
+fun! s:handleLabel()
+  let key = s:key(getline('.'))
+  redraw | echomsg key
+
+  cal inputsave()
+  let labels = input('Label:', '')
+  cal inputrestore()
+
+  let out = system('kubectl label ' . b:resource_type . ' ' . shellescape(key) . ' ' . labels)
+  redraw | echomsg split(out, "\n")[0]
+
+  let b:source_changed = 1
+  cal s:render()
+endf
+
+
 
 func s:handleNamespaceChange()
   cal inputsave()
@@ -360,13 +376,16 @@ fun! s:Vikube(resource_type)
 
   " default local bindings
   nnoremap <script><buffer> /     :cal <SID>handleStartSearch()<CR>
+
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
+  nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
+
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> s     :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> w     :cal <SID>handleToggleWide()<CR>
-  nnoremap <script><buffer> N     :cal <SID>handleToggleAllNamepsace()<CR>
   nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
+  nnoremap <script><buffer> N     :cal <SID>handleToggleAllNamepsace()<CR>
   nnoremap <script><buffer> r     :cal <SID>handleResourceTypeChange()<CR>
 
   nnoremap <script><buffer> ]]     :cal <SID>handleNextResourceType()<CR>
