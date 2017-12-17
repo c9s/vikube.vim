@@ -52,7 +52,7 @@ VikubeContextList
 VikubeNodeList
 --------------
 
-- `L` - Label the selected node.
+- `L` - Label the selected node.  (Input form: `Label=Value Label2=Value2`)
 - `S` - describe the selected pod.
 - `U` - Update list.
 
@@ -75,7 +75,6 @@ VikubeTop
 - `N` - switch to nodes top.
 - `P` - switch to pods top.
 - `S` - describe the selected pod.
-
 
 Configuration
 ---------------
