@@ -114,4 +114,4 @@ if exists("g:vikube_autoupdate")
 endif
 
 " VikubePodList
-nmap <leader>ko  :VikubePodList<CR>
+nmap <leader>kpo  :VikubePodList<CR>

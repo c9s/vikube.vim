@@ -110,4 +110,4 @@ if exists("g:vikube_autoupdate")
 endif
 
 " VikubePVCList
-nmap <leader>kp  :VikubePVCList<CR>
+nmap <leader>kpvc  :VikubePVCList<CR>

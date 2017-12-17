@@ -113,4 +113,4 @@ if exists("g:vikube_autoupdate")
 endif
 
 " VikubeNodeList
-nmap <leader>kn  :VikubeNodeList<CR>
+nmap <leader>kno  :VikubeNodeList<CR>

@@ -111,4 +111,4 @@ if exists("g:vikube_autoupdate")
 endif
 
 " VikubeServiceList
-nmap <leader>kv  :VikubeServiceList<CR>
+nmap <leader>ksv :VikubeServiceList<CR>

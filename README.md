@@ -88,13 +88,15 @@ Default Mapping
 
 - `<leader>kc` - Open the **k**ubernetes **c**ontext list buffer.
 
-- `<leader>kn` - Open the **k**ubernetes **n**ode list buffer.
+- `<leader>kno` - Open the **k**ubernetes **no**de list buffer.
 
-- `<leader>ko` - Open the **k**ubernetes p**o**d list buffer.
+- `<leader>kpo` - Open the **k**ubernetes **po**d list buffer.
 
-- `<leader>kv` - Open the **k**ubernetes ser**v**ice list buffer.
+- `<leader>ksv` - Open the **k**ubernetes **s**er**v**ice list buffer.
 
 - `<leader>kt` - Open the **k**ubernetes **t**op buffer.
+
+- `<leader>kpvc` - Open the **k**ubernetes persistent volume claim buffer.
 
 
 License
