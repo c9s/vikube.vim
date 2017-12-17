@@ -1,29 +1,70 @@
+let g:kubernetes_resource_types = [
+      \  'all',
+      \  'certificatesigningrequests',
+      \  'clusterrolebindings',
+      \  'clusterroles',
+      \  'clusters',
+      \  'componentstatuses',
+      \  'configmaps',
+      \  'controllerrevisions',
+      \  'cronjobs',
+      \  'customresourcedefinition',
+      \  'daemonsets',
+      \  'deployments',
+      \  'endpoints',
+      \  'events',
+      \  'horizontalpodautoscalers' ,
+      \  'ingresses' ,
+      \  'jobs',
+      \  'limitranges' ,
+      \  'namespaces' ,
+      \  'networkpolicies' ,
+      \  'nodes' ,
+      \  'persistentvolumeclaims' ,
+      \  'persistentvolumes' ,
+      \  'poddisruptionbudgets' ,
+      \  'podpreset',
+      \  'pods' ,
+      \  'podsecuritypolicies' ,
+      \  'podtemplates',
+      \  'replicasets' ,
+      \  'replicationcontrollers' ,
+      \  'resourcequotas' ,
+      \  'rolebindings',
+      \  'roles',
+      \  'secrets',
+      \  'serviceaccounts' ,
+      \  'services',
+      \  'statefulsets',
+      \  'storageclasses',
+      \ ]
 
-
-let g:vikube_object_types = ["pod", "pvc", "pv", "statefulset", "deployment", "service", "serviceaccount"]
+let g:kubernetes_common_resource_types = ["pod", "pvc", "pv", "statefulset", "deployment", "service", "serviceaccount"]
 
 fun! s:source()
-  let cmd = "kubectl get " . b:object
+  let cmd = "kubectl get " . b:resource_type
   if b:wide
     let cmd = cmd . " -o wide"
   endif
   if b:all_namespace
     let cmd = cmd . " --all-namespaces"
+  else
+    let cmd = cmd . " --namespace=" . b:namespace
   endif
   return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
 fun! s:header()
-  return "Kubernetes object=" . b:object . " namespace=" . b:namespace . " wide=" . b:wide
+  return "Kubernetes object=" . b:resource_type . " namespace=" . b:namespace . " wide=" . b:wide
 endf
 
 fun! s:help()
   cal g:Help.reg(s:header(),
-    \" D     - Delete " . b:object . "\n" .
+    \" D     - Delete " . b:resource_type . "\n" .
     \" u     - Update List\n" .
     \" w     - Toggle wide option\n" .
-    \" s     - Describe " . b:object . "\n" .
-    \" Enter - Describe " . b:object . "\n"
+    \" s     - Describe " . b:resource_type . "\n" .
+    \" Enter - Describe " . b:resource_type . "\n"
     \,1)
 endf
 
@@ -63,31 +104,68 @@ fun! s:handleDelete()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
-  let out = system('kubectl delete ' . b:object . ' ' . shellescape(key))
+  let out = system('kubectl delete ' . b:resource_type . ' ' . shellescape(key))
   redraw | echomsg split(out, "\n")[0]
   let b:source_changed = 1
   cal s:render()
 endf
 
 fun! s:handlePrevObjectType()
-  let x = index(g:vikube_object_types, b:object)
+  let x = index(g:kubernetes_common_resource_types, b:resource_type)
   let x = x - 1
   if x < 0
-    let x = len(g:vikube_object_types) - 1
+    let x = len(g:kubernetes_common_resource_types) - 1
   endif
-  let b:object = g:vikube_object_types[x]
+  let b:resource_type = g:kubernetes_common_resource_types[x]
 
   let b:source_changed = 1
   cal s:render()
 endf
 
+
+fun! g:KubernetesNamespaceCompletion(lead, cmd, pos)
+  let entries = split(system("kubectl get namespace --no-headers | awk '{ print $1 }'"))
+  cal filter(entries , 'v:val =~ "^' .a:lead. '"')
+  return entries
+endf
+
+func s:handleNamespaceChange()
+  cal inputsave()
+  let new_namespace = input('Namespace:', b:namespace, 'customlist,KubernetesNamespaceCompletion')
+  cal inputrestore()
+  if len(new_namespace) > 0
+    let b:namespace = new_namespace
+  endif
+  let b:source_changed = 1
+  cal s:render()
+endf
+
+
+fun! g:KubernetesResourceTypeCompletion(lead, cmd, pos)
+  let entries = g:kubernetes_resource_types
+  cal filter(entries , 'v:val =~ "^' .a:lead. '"')
+  return entries
+endf
+
+func s:handleResourceTypeChange()
+  cal inputsave()
+  let new_resource_type = input('Resource Type:', b:namespace, 'customlist,KubernetesResourceTypeCompletion')
+  cal inputrestore()
+  if len(new_resource_type) > 0
+    let b:resource_type = new_resource_type
+  endif
+  let b:source_changed = 1
+  cal s:render()
+endf
+
+
 fun! s:handleNextObjectType()
-  let x = index(g:vikube_object_types, b:object)
+  let x = index(g:kubernetes_common_resource_types, b:resource_type)
   let x = x + 1
-  if x >= len(g:vikube_object_types)
+  if x >= len(g:kubernetes_common_resource_types)
     let x = 0
   endif
-  let b:object = g:vikube_object_types[x]
+  let b:resource_type = g:kubernetes_common_resource_types[x]
 
   let b:source_changed = 1
   cal s:render()
@@ -120,7 +198,7 @@ fun! s:handleDescribe()
   let namespace = s:namespace(line)
   let key = s:key(line)
   redraw | echomsg key 
-  let object = b:object
+  let object = b:resource_type
   let out = system('kubectl describe ' . object . ' --namespace=' . namespace . ' ' . key)
   botright new
   silent exec "file " . key
@@ -178,14 +256,14 @@ fun! s:Vikube(object)
   let b:search = ""
   let b:wide = 1
   let b:all_namespace = 0
-  let b:object = a:object
+  let b:resource_type = a:object
   exec "silent file VikubeExplorer"
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
   setlocal cursorline
   setlocal updatetime=5000
   cal s:render()
-  silent exec "setfiletype k" . b:object . "list"
+  silent exec "setfiletype k" . b:resource_type . "list"
 
   " local bindings
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
@@ -194,6 +272,8 @@ fun! s:Vikube(object)
   nnoremap <script><buffer> s     :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> w     :cal <SID>handleToggleWide()<CR>
   nnoremap <script><buffer> a     :cal <SID>handleToggleAllNamepsace()<CR>
+  nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
+  nnoremap <script><buffer> r     :cal <SID>handleResourceTypeChange()<CR>
   nnoremap <script><buffer> ]]     :cal <SID>handleNextObjectType()<CR>
   nnoremap <script><buffer> [[     :cal <SID>handlePrevObjectType()<CR>
 
