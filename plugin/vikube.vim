@@ -381,7 +381,7 @@ fun! s:Vikube(resource_type)
 
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+
-  syn region Search start="^> .*" end="$"
+  syn region Search start="^> .*" end="$" keepend
   hi link CurrentPod Identifier
 
 endf
