@@ -85,6 +85,3 @@ fun! s:VikubeContextList()
   hi link CurrentContext Identifier
 endf
 com! VikubeContextList :cal s:VikubeContextList()
-
-" VikubeContextList
-nmap <leader>kc  :VikubeContextList<CR>

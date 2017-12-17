@@ -109,6 +109,3 @@ com! VikubeServiceList :cal s:VikubeServiceList()
 if exists("g:vikube_autoupdate")
   au! CursorHold KServiceList :cal <SID>render()
 endif
-
-" VikubeServiceList
-nmap <leader>ksv :VikubeServiceList<CR>

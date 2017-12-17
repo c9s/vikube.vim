@@ -108,6 +108,3 @@ com! VikubePVCList :cal s:VikubePVCList()
 if exists("g:vikube_autoupdate")
   au! CursorHold KPVCList :cal <SID>render()
 endif
-
-" VikubePVCList
-nmap <leader>kpvc  :VikubePVCList<CR>

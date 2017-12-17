@@ -33,7 +33,7 @@ fun! s:handleUpdate()
   cal s:render()
 endf
 
-fun! s:handleDeletePod()
+fun! s:handleDelete()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
@@ -97,7 +97,7 @@ fun! s:VikubePodList()
   silent exec "setfiletype k" . s:object_type . "list"
 
   " local bindings
-  nnoremap <script><buffer> D     :cal <SID>handleDeletePod()<CR>
+  nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
@@ -112,6 +112,3 @@ com! VikubePodList :cal s:VikubePodList()
 if exists("g:vikube_autoupdate")
   au! CursorHold KPodList :cal <SID>render()
 endif
-
-" VikubePodList
-nmap <leader>kpo  :VikubePodList<CR>

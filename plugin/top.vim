@@ -112,6 +112,4 @@ if exists("g:vikube_autoupdate")
   au! CursorHold KTopList :cal <SID>render()
 endif
 
-" VikubeTop
-nmap <leader>kt  :VikubeTop<CR>
 

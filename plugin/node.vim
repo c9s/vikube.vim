@@ -111,6 +111,3 @@ com! VikubeNodeList :cal s:VikubeNodeList()
 if exists("g:vikube_autoupdate")
   au! CursorHold KNodeList :cal <SID>render()
 endif
-
-" VikubeNodeList
-nmap <leader>kno  :VikubeNodeList<CR>
