@@ -68,14 +68,15 @@ endf
 
 fun! s:VikubeContextList()
   tabnew
-  silent file KubeContexts
+  silent file KContextList
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
+  setlocal cursorline
   cal s:render()
-  setfiletype kubecontexts
+  setfiletype kcontextlist
 
   " local bindings
-  nnoremap <script><buffer> U     :cal <SID>handleSwitchContext()<CR>
+  nnoremap <script><buffer> S     :cal <SID>handleSwitchContext()<CR>
   nnoremap <script><buffer> D     :cal <SID>handleDeleteContext()<CR>
   nnoremap <script><buffer> R     :cal <SID>handleRenameContext()<CR>
 
