@@ -4,7 +4,8 @@ endf
 
 fun! s:help()
   cal g:Help.reg("Kubernetes Pods:",
-    \" D - Delete Pod\n"
+    \" D - Delete Pod\n" .
+    \" U - Update List\n"
     \,1)
 endf
 
@@ -20,6 +21,11 @@ endf
 fun! s:key(row)
   let fields = s:fields(a:row)
   return fields[0]
+endf
+
+fun! s:handleUpdate()
+  redraw | echomsg "Updating pod list ..."
+  cal s:render()
 endf
 
 fun! s:handleDeletePod()
@@ -58,16 +64,18 @@ fun! s:VikubePodList()
   setlocal updatetime=5000
   cal s:render()
   setfiletype kpodlist
-  au! CursorHold KPodList :cal <SID>render()
 
   " local bindings
   nnoremap <script><buffer> D     :cal <SID>handleDeletePod()<CR>
+  nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+
   hi link CurrentPod Identifier
 endf
+
 com! VikubePodList :cal s:VikubePodList()
+au! CursorHold KPodList :cal <SID>render()
 
 " VikubePodList
 nmap <leader>kp  :VikubePodList<CR>
