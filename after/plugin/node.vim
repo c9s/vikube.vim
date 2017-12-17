@@ -72,8 +72,6 @@ fun! s:VikubeNodeList()
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
 
   syn match Comment +^#.*+ 
-  syn match CurrentNode +^\*.*+
-  hi link CurrentNode Identifier
 endf
 
 com! VikubeNodeList :cal s:VikubeNodeList()
