@@ -144,10 +144,9 @@ endf
 
 fun! s:handleLabel()
   let key = s:key(getline('.'))
-  redraw | echomsg key
 
   cal inputsave()
-  let labels = input('Label:', '')
+  let labels = input('Label (to ' . key . '):', '')
   cal inputrestore()
 
   let out = system('kubectl label ' . b:resource_type . ' ' . shellescape(key) . ' ' . labels)
