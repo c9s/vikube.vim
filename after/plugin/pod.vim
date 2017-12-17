@@ -4,8 +4,10 @@ endf
 
 fun! s:help()
   cal g:Help.reg("Kubernetes Pods:",
-    \" D - Delete Pod\n" .
-    \" U - Update List\n"
+    \" D     - Delete Pod\n" .
+    \" U     - Update List\n" .
+    \" S     - Describe Pod\n" .
+    \" Enter - Describe Pod\n"
     \,1)
 endf
 
@@ -36,6 +38,29 @@ fun! s:handleDeletePod()
   redraw | echomsg split(out, "\n")[0]
   cal s:render()
 endf
+
+fun! s:handleDescribePod()
+  let key = s:key(getline('.'))
+  redraw | echomsg key
+
+  let out = system('kubectl describe pod ' . key)
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  silent put=out
+  redraw
+  silent normal ggdd
+  setfiletype kdescribepod
+  setlocal nomodifiable
+
+  nnoremap <script><buffer> q :q<CR>
+
+  syn match Label +^\S.\{-}:+ 
+  syn match Error +Error+ 
+endf
+
 
 fun! s:render()
   let save_cursor = getcurpos()
@@ -71,6 +96,8 @@ fun! s:VikubePodList()
   " local bindings
   nnoremap <script><buffer> D     :cal <SID>handleDeletePod()<CR>
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
+  nnoremap <script><buffer> <CR>  :cal <SID>handleDescribePod()<CR>
+  nnoremap <script><buffer> S     :cal <SID>handleDescribePod()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+
