@@ -42,31 +42,36 @@ Commands
 
 - `:VikubeTop` - Open the top buffer.
 
+VikubeContextList
+-----------------
+
+- `S` - Switch to the selected context.
+- `R` - Rename the selected context.
+- `D` - Delete the selected context.
 
 VikubeNodeList
 --------------
 
-`L` - label the selected node.
-
+- `L` - Label the selected node.
+- `U` - Update list.
 
 VikubePodList
 -------------
 
-`D` - delete the selected pod.
-
+- `D` - delete the selected pod.
+- `S` - describe the selected pod.
+- `U` - Update list.
 
 VikubeServiceList
 -----------------
 
-`D` - delete the selected service.
+- `D` - delete the selected service.
 
 VikubeTop
 ---------
 
-`N` - switch to nodes top.
-`P` - switch to pods top.
-
-
+- `N` - switch to nodes top.
+- `P` - switch to pods top.
 
 
 
