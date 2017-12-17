@@ -7,7 +7,7 @@ fun! s:help()
   cal g:Help.reg("Kubernetes Contexts: kubectl config get-contexts",
     \" D - Delete Context\n" .
     \" R - Rename Context\n" .
-    \" S - Switch Context\n" 
+    \" s - Switch Context\n" 
     \,1)
 endf
 
@@ -77,7 +77,7 @@ fun! s:VikubeContextList()
 
   " local bindings
   nnoremap <script><buffer> s     :cal <SID>handleSwitchContext()<CR>
-  nnoremap <script><buffer> r     :cal <SID>handleRenameContext()<CR>
+  nnoremap <script><buffer> R     :cal <SID>handleRenameContext()<CR>
   nnoremap <script><buffer> D     :cal <SID>handleDeleteContext()<CR>
 
   syn match Comment +^#.*+ 

@@ -34,6 +34,8 @@ Commands
 
 - `:VikubeContextList` - Open the context list buffer.
 
+- `:Vikube [ResourceType]` - Open the vikube explorer with a specific resource type.
+
 - `:VikubeNodeList` - Open the node list buffer.
 
 - `:VikubePodList` - Open the pod list buffer.
@@ -48,15 +50,25 @@ VikubeContextList
 -----------------
 
 - `s` - Switch to the selected context.
-- `r` - Rename the selected context.
+- `R` - Rename the selected context.
 - `D` - Delete the selected context.
 
-VikubeNodeList
+VikubeExplorer
 --------------
 
-- `l` - Label the selected node.  (Input form: `Label=Value Label2=Value2`)
-- `d` - describe the selected node.
+- `]]` - Navigate to the next resource type.
+- `[[` - Navigate to the previous resource type.
+
+- `e` - Explain the current resource type.
+- `s` - Describe the selected resource.
+- `n` - Switch namespace.
+- `r` - Switch resource type.
+- `N` - Toggle "all namespaces" option.
 - `u` - Update list.
+- `w` - Toggle wide option.
+
+- `L` - Label the selected resource.  (Input form: `Label=Value Label2=Value2`)
+- `D` - Delete the selected resource.
 
 VikubePodList
 -------------
