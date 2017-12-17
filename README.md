@@ -32,3 +32,8 @@ Default Mapping
 - `<leader>kp` - Open the **k**ubernetes **p**od list
 
 - `<leader>kv` - Open the **k**ubernetes ser*v*ice list
+
+
+License
+----------
+MIT License
