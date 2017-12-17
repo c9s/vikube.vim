@@ -38,6 +38,13 @@ let g:kubernetes_resource_types = [
       \  'statefulsets',
       \  'storageclasses']
 
+let g:kubernetes_loggable_resource_types = [
+      \"pods",
+      \"deployments",
+      \"replicasets",
+      \"statefulsets",
+      \"jobs"]
+
 let g:kubernetes_common_resource_types = [
       \"pods",
       \"persistentvolumeclaims",
@@ -60,7 +67,7 @@ fun! g:KubernetesNamespaceCompletion(lead, cmd, pos)
 endf
 
 fun! g:KubernetesResourceTypeCompletion(lead, cmd, pos)
-  let entries = g:kubernetes_resource_types
+  let entries = g:kubernetes_resource_types[:]
   cal filter(entries , 'v:val =~ "^' .a:lead. '"')
   return entries
 endf
@@ -159,14 +166,20 @@ fun! s:handleLabel()
 endf
 
 func s:handleLogs()
-  if b:resource_type != "pods"
-    redraw | echomsg "logs are only for pods"
+  if index(g:kubernetes_loggable_resource_types, b:resource_type) == -1
+    redraw | echomsg "logs are only for " . join(g:kubernetes_loggable_resource_types, ',')
     return
   endif
 
   let resource_type = b:resource_type
   let key = s:key(getline('.'))
-  let cmd = "kubectl get pod " . key . " -o 'go-template' --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+
+  if resource_type == "pods"
+    let cmd = "kubectl get " . resource_type . ' ' . key . " -o 'go-template' --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+  else
+    let cmd = "kubectl get " . resource_type . ' ' . key . " -o 'go-template' --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+  endif
+
   let out = system(cmd)
   let containers = split(out)
 
@@ -185,9 +198,7 @@ func s:handleLogs()
       let cont = containers[0]
     endif
   endif
-
-  let cmd = "kubectl logs -c " . cont . ' ' . key
-  redraw | echomsg cmd
+  let cmd = "kubectl logs -c " . cont . ' ' . resource_type . '/' . key
 
   botright new
   silent exec "file " . key
@@ -195,6 +206,8 @@ func s:handleLogs()
   setlocal nowrap nocursorline
   setlocal buftype=nofile bufhidden=wipe
   setlocal modifiable
+
+  redraw | echomsg cmd
   let out = system(cmd)
   silent put=out
   redraw
