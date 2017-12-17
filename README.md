@@ -6,7 +6,7 @@ Install
 
 If you use vundle:
 
-```
+```vim
 call vundle#begin()
     Plugin 'c9s/helper.vim'
     Plugin 'c9s/treemenu.vim'
