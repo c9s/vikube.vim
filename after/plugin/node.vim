@@ -73,7 +73,7 @@ fun! s:VikubeNodeList()
   setfiletype knodelist
 
   " local bindings
-  nnoremap <script><buffer> D     :cal <SID>handleLabelNode()<CR>
+  nnoremap <script><buffer> L     :cal <SID>handleLabelNode()<CR>
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
 
   syn match Comment +^#.*+ 
