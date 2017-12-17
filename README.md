@@ -82,9 +82,9 @@ Default Mapping
 
 - `<leader>kn` - Open the **k**ubernetes **n**ode list buffer.
 
-- `<leader>kp` - Open the **k**ubernetes **p**od list buffer.
+- `<leader>ko` - Open the **k**ubernetes p**o**d list buffer.
 
-- `<leader>kv` - Open the **k**ubernetes ser*v*ice list buffer.
+- `<leader>kv` - Open the **k**ubernetes ser**v**ice list buffer.
 
 - `<leader>kt` - Open the **k**ubernetes **t**op buffer.
 
