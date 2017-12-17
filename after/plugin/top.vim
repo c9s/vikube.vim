@@ -35,10 +35,31 @@ fun! s:handlePodMode()
   cal s:render()
 endf
 
-
 fun! s:handleUpdate()
   redraw | echomsg "Updating ..."
   cal s:render()
+endf
+
+fun! s:handleDescribe()
+  let key = s:key(getline('.'))
+  redraw | echomsg key
+
+  let out = system('kubectl describe ' . b:top_mode . ' ' . key)
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  silent put=out
+  redraw
+  silent normal ggdd
+  silent exec "setfiletype kdescribe" . s:top_mode
+  setlocal nomodifiable
+
+  nnoremap <script><buffer> q :q<CR>
+
+  syn match Label +^\S.\{-}:+ 
+  syn match Error +Error+ 
 endf
 
 fun! s:render()

@@ -31,6 +31,28 @@ fun! s:handleUpdate()
   cal s:render()
 endf
 
+fun! s:handleDescribe()
+  let key = s:key(getline('.'))
+  redraw | echomsg key
+
+  let out = system('kubectl describe ' . s:object_type . ' ' . key)
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  silent put=out
+  redraw
+  silent normal ggdd
+  silent exec "setfiletype kdescribe" . s:object_type
+  setlocal nomodifiable
+
+  nnoremap <script><buffer> q :q<CR>
+
+  syn match Label +^\S.\{-}:+ 
+  syn match Error +Error+ 
+endf
+
 fun! s:handleLabel()
   let key = s:key(getline('.'))
   redraw | echomsg key
@@ -78,6 +100,8 @@ fun! s:VikubeNodeList()
   " local bindings
   nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
+  nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
 endf

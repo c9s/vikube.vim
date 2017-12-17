@@ -1,13 +1,16 @@
+let s:object_type = 'pod'
+let s:object_label = 'Pod'
+
 fun! s:source()
-  return system("kubectl get pods -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+  return system("kubectl get " . s:object_type . " -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
 fun! s:help()
-  cal g:Help.reg("Kubernetes Pods:",
-    \" D     - Delete Pod\n" .
+  cal g:Help.reg("Kubernetes " . s:object_label . ":",
+    \" D     - Delete " . s:object_label . "\n" .
     \" U     - Update List\n" .
-    \" S     - Describe Pod\n" .
-    \" Enter - Describe Pod\n"
+    \" S     - Describe " . s:object_label . "\n" .
+    \" Enter - Describe " . s:object_label . "\n"
     \,1)
 endf
 
@@ -34,16 +37,16 @@ fun! s:handleDeletePod()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
-  let out = system('kubectl delete pod ' . shellescape(key))
+  let out = system('kubectl delete ' . s:object_type . ' ' . shellescape(key))
   redraw | echomsg split(out, "\n")[0]
   cal s:render()
 endf
 
-fun! s:handleDescribePod()
+fun! s:handleDescribe()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
-  let out = system('kubectl describe pod ' . key)
+  let out = system('kubectl describe ' . s:object_type . ' ' . key)
   botright new
   silent exec "file " . key
   setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
@@ -52,7 +55,7 @@ fun! s:handleDescribePod()
   silent put=out
   redraw
   silent normal ggdd
-  setfiletype kdescribepod
+  silent exec "setfiletype kdescribe" . s:object_type
   setlocal nomodifiable
 
   nnoremap <script><buffer> q :q<CR>
@@ -85,19 +88,19 @@ endf
 
 fun! s:VikubePodList()
   tabnew
-  silent file KPodList
+  silent exec "silent file K" . s:object_label . "List"
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
   setlocal cursorline
   setlocal updatetime=5000
   cal s:render()
-  setfiletype kpodlist
+  silent exec "setfiletype k" . s:object_type . "list"
 
   " local bindings
   nnoremap <script><buffer> D     :cal <SID>handleDeletePod()<CR>
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
-  nnoremap <script><buffer> <CR>  :cal <SID>handleDescribePod()<CR>
-  nnoremap <script><buffer> S     :cal <SID>handleDescribePod()<CR>
+  nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+

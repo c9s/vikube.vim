@@ -40,6 +40,29 @@ fun! s:handleDelete()
   cal s:render()
 endf
 
+fun! s:handleDescribe()
+  let key = s:key(getline('.'))
+  redraw | echomsg key
+
+  let out = system('kubectl describe ' . s:object_type . ' ' . key)
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  silent put=out
+  redraw
+  silent normal ggdd
+  silent exec "setfiletype kdescribe" . s:object_type
+  setlocal nomodifiable
+
+  nnoremap <script><buffer> q :q<CR>
+
+  syn match Label +^\S.\{-}:+ 
+  syn match Error +Error+ 
+endf
+
+
 fun! s:render()
   let save_cursor = getcurpos()
 
@@ -62,7 +85,7 @@ endf
 
 fun! s:VikubeServiceList()
   tabnew
-  silent file KServiceList
+  silent exec "silent file K" . s:object_label . "List"
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
   setlocal cursorline
@@ -73,6 +96,8 @@ fun! s:VikubeServiceList()
   " local bindings
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
+  nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> S     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentService +^\*.*+
