@@ -382,12 +382,13 @@ fun! s:Vikube(resource_type)
 
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+
+  syn region Search start="^> .*" end="$"
   hi link CurrentPod Identifier
 
 endf
 
-com! VikubePodList :cal s:Vikube("pod")
-com! Vikube :cal s:Vikube("pod")
+com! VikubePodList :cal s:Vikube("pods")
+com! Vikube :cal s:Vikube("pods")
 
 if exists("g:vikube_autoupdate")
   au! CursorHold VikubeExplorer :cal <SID>render()
