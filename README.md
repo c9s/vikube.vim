@@ -74,6 +74,12 @@ VikubeTop
 - `P` - switch to pods top.
 
 
+Configuration
+---------------
+
+To turn on automatic list update:
+
+    let g:vikube_autoupdate = 1
 
 Default Mapping
 ---------------
