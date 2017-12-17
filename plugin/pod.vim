@@ -78,7 +78,7 @@ fun! s:source()
 endf
 
 fun! s:header()
-  return "Kubernetes resource=" . b:resource_type . " namespace=" . b:namespace . " wide=" . b:wide
+  return "Kubernetes namespace=" . b:namespace . " resource=" . b:resource_type . " wide=" . b:wide
 endf
 
 fun! s:help()
@@ -86,6 +86,8 @@ fun! s:help()
     \" D     - Delete " . b:resource_type . "\n" .
     \" ]]    - Next resource type\n".
     \" [[    - Previous resource type\n".
+    \" }}    - Next namespace\n".
+    \" {{    - Previous namespace type\n".
     \" u     - Update List\n" .
     \" w     - Toggle wide option\n" .
     \" a     - Toggle all namespaces\n" .
@@ -150,6 +152,27 @@ func s:handleNamespaceChange()
   cal s:render()
 endf
 
+func s:handleNextNamespace()
+  let namespaces = vikube#get_namespaces()
+  let x = index(namespaces, b:namespace) + 1
+  if x >= len(namespaces)
+    let x = 0
+  endif
+  let b:namespace = namespaces[x]
+  let b:source_changed = 1
+  cal s:render()
+endf
+
+func s:handlePrevNamespace()
+  let namespaces = vikube#get_namespaces()
+  let x = index(namespaces, b:namespace) - 1
+  if x < 0
+    let x = len(namespaces) - 1
+  endif
+  let b:namespace = namespaces[x]
+  let b:source_changed = 1
+  cal s:render()
+endf
 
 func s:handleResourceTypeChange()
   cal inputsave()
@@ -161,9 +184,6 @@ func s:handleResourceTypeChange()
   let b:source_changed = 1
   cal s:render()
 endf
-
-
-
 
 
 fun! s:handlePrevResourceType()
@@ -294,8 +314,12 @@ fun! s:Vikube(resource_type)
   nnoremap <script><buffer> a     :cal <SID>handleToggleAllNamepsace()<CR>
   nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
   nnoremap <script><buffer> r     :cal <SID>handleResourceTypeChange()<CR>
+
   nnoremap <script><buffer> ]]     :cal <SID>handleNextResourceType()<CR>
   nnoremap <script><buffer> [[     :cal <SID>handlePrevResourceType()<CR>
+
+  nnoremap <script><buffer> }}     :cal <SID>handleNextNamespace()<CR>
+  nnoremap <script><buffer> {{     :cal <SID>handlePrevNamespace()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+
