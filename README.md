@@ -25,21 +25,29 @@ See [Vundle](https://github.com/VundleVim/Vundle.vim) for more details.
 Commands
 --------
 
-- `:VikubeContextList` - Open the context list buffer
+- `:VikubeContextList` - Open the context list buffer.
 
-- `:VikubePodList` - Open the pod list buffer
+- `:VikubeNodeList` - Open the node list buffer.
 
-- `:VikubeServiceList` - Open the service list buffer
+- `:VikubePodList` - Open the pod list buffer.
+
+- `:VikubeServiceList` - Open the service list buffer.
+
+- `:VikubeTop` - Open the top buffer.
 
 
 Default Mapping
 ---------------
 
-- `<leader>kc` - Open the **k**ubernetes **c**ontext list
+- `<leader>kc` - Open the **k**ubernetes **c**ontext list buffer.
 
-- `<leader>kp` - Open the **k**ubernetes **p**od list
+- `<leader>kn` - Open the **k**ubernetes **n**ode list buffer.
 
-- `<leader>kv` - Open the **k**ubernetes ser*v*ice list
+- `<leader>kp` - Open the **k**ubernetes **p**od list buffer.
+
+- `<leader>kv` - Open the **k**ubernetes ser*v*ice list buffer.
+
+- `<leader>kt` - Open the **k**ubernetes **t**op buffer.
 
 
 License
