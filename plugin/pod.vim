@@ -51,6 +51,9 @@ let g:kubernetes_common_resource_types = [
       \"service", 
       \"serviceaccount"]
 
+let g:vikube_search_prefix = '> '
+
+
 fun! g:KubernetesNamespaceCompletion(lead, cmd, pos)
   let entries = vikube#get_namespaces()
   cal filter(entries , 'v:val =~ "^' .a:lead. '"')
@@ -83,7 +86,6 @@ endf
 
 fun! s:help()
   cal g:Help.reg(s:header(),
-    \" D     - Delete " . b:resource_type . "\n" .
     \" ]]    - Next resource type\n".
     \" [[    - Previous resource type\n".
     \" }}    - Next namespace\n".
@@ -93,6 +95,7 @@ fun! s:help()
     \" N     - Toggle all namespaces\n" .
     \" n     - Switch namespace view\n" .
     \" r     - Switch resource type view\n" .
+    \" D     - Delete " . b:resource_type . "\n" .
     \" s     - Describe " . b:resource_type . "\n" .
     \" Enter - Describe " . b:resource_type . "\n"
     \,1)
@@ -289,7 +292,9 @@ fun! s:render()
   if t:search_enabled
     let lines = split(b:source_cache, "\n")
     let rows = lines[1:]
-    cal filter(rows, 'v:val =~ "^' . b:current_search . '"')
+    let current_search = getline(2)
+    let s = strpart(current_search, len(g:vikube_search_prefix))
+    cal filter(rows, 'v:val =~ "' . s . '"')
     let out = join(lines[:0] + rows, "\n")
   else
     let out = b:source_cache
@@ -311,10 +316,15 @@ fun! s:render()
 
   if t:search_enabled
     cal append(1, "")
-    if exists('b:current_search')
+    if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
+      cal setline(2, g:vikube_search_prefix)
+    else
       cal setline(2, b:current_search)
     endif
     let save_cursor[1] = 2
+    if save_cursor[2] < len(g:vikube_search_prefix) + 1
+      let save_cursor[2] = len(g:vikube_search_prefix) + 1
+    endif
     call setpos('.', save_cursor)
     set modifiable
     startinsert
