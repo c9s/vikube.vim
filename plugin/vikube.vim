@@ -90,10 +90,12 @@ fun! s:help()
     \" }}    - Next namespace\n".
     \" {{    - Previous namespace type\n".
     \" u     - Update List\n" .
+    \" e     - Explain the current resource\n" .
     \" w     - Toggle wide option\n" .
     \" N     - Toggle all namespaces\n" .
     \" n     - Switch namespace view\n" .
     \" r     - Switch resource type view\n" .
+    \" L     - Label " . b:resource_type . "\n" .
     \" D     - Delete " . b:resource_type . "\n" .
     \" s     - Describe " . b:resource_type . "\n" .
     \" Enter - Describe " . b:resource_type . "\n"
@@ -269,6 +271,31 @@ fun! s:handleStopSearch()
   cal s:render()
 endf
 
+
+fun! s:handleExplain()
+  let line = getline('.')
+  let namespace = s:namespace(line)
+  let key = s:key(line)
+  let resource_type = b:resource_type
+  let cmd = 'kubectl explain ' . resource_type
+  redraw | echomsg cmd
+
+  let out = system(cmd)
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
+  setlocal wrap
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  setlocal nolist
+  silent put=out
+  redraw
+  silent normal ggdd
+  silent exec "setfiletype kexplain" . resource_type
+  setlocal nomodifiable
+  nnoremap <script><buffer> q :q<CR>
+endf
+
 fun! s:handleDescribe()
   let line = getline('.')
   let namespace = s:namespace(line)
@@ -280,7 +307,8 @@ fun! s:handleDescribe()
   let out = system(cmd)
   botright new
   silent exec "file " . key
-  setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
+  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
+  setlocal wrap nocursorline
   setlocal buftype=nofile bufhidden=wipe
   setlocal modifiable
   silent put=out
@@ -382,6 +410,7 @@ fun! s:Vikube(resource_type)
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> s     :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> e     :cal <SID>handleExplain()<CR>
   nnoremap <script><buffer> w     :cal <SID>handleToggleWide()<CR>
   nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
   nnoremap <script><buffer> N     :cal <SID>handleToggleAllNamepsace()<CR>
@@ -398,16 +427,16 @@ fun! s:Vikube(resource_type)
   au! CursorMovedI <buffer> :cal <SID>handleApplySearch()
 
   syn match Comment +^#.*+ 
-  syn match CurrentPod +^\*.*+
   syn region Search start="^> .*" end="$" keepend
-  hi link CurrentPod Identifier
-
+  hi CursorLine term=reverse cterm=reverse ctermbg=darkcyan
 endf
 
-" com! VikubeNodeList :cal s:Vikube("nodes")
+com! VikubeNodeList :cal s:Vikube("nodes")
 com! VikubePVList :cal s:Vikube("persistentvolumes")
 com! VikubePVCList :cal s:Vikube("persistentvolumeclaims")
 com! VikubeServiceList :cal s:Vikube("services")
+com! VikubeStatefulsetList :cal s:Vikube("statefulsets")
+com! VikubeDeploymentList :cal s:Vikube("deployments")
 com! VikubePodList :cal s:Vikube("pods")
 com! Vikube :cal s:Vikube("pods")
 
