@@ -90,7 +90,7 @@ fun! s:help()
     \" {{    - Previous namespace type\n".
     \" u     - Update List\n" .
     \" w     - Toggle wide option\n" .
-    \" a     - Toggle all namespaces\n" .
+    \" N     - Toggle all namespaces\n" .
     \" n     - Switch namespace view\n" .
     \" r     - Switch resource type view\n" .
     \" s     - Describe " . b:resource_type . "\n" .
@@ -143,7 +143,7 @@ endf
 
 func s:handleNamespaceChange()
   cal inputsave()
-  let new_namespace = input('Namespace:', b:namespace, 'customlist,KubernetesNamespaceCompletion')
+  let new_namespace = input('Namespace:', '', 'customlist,KubernetesNamespaceCompletion')
   cal inputrestore()
   if len(new_namespace) > 0
     let b:namespace = new_namespace
@@ -176,7 +176,7 @@ endf
 
 func s:handleResourceTypeChange()
   cal inputsave()
-  let new_resource_type = input('Resource Type:', b:resource_type, 'customlist,KubernetesResourceTypeCompletion')
+  let new_resource_type = input('Resource Type:', '', 'customlist,KubernetesResourceTypeCompletion')
   cal inputrestore()
   if len(new_resource_type) > 0
     let b:resource_type = new_resource_type
@@ -233,6 +233,25 @@ fun! s:handleToggleWide()
   cal s:render()
 endf
 
+fun! s:handleApplySearch()
+  let b:current_search = getline(2)
+  cal s:render()
+endf
+
+
+fun! s:handleStartSearch()
+  let t:search_enabled = 1
+  let b:current_search = ""
+  setlocal updatetime=1000
+  cal s:render()
+endf
+
+fun! s:handleStopSearch()
+  let t:search_enabled = 0
+  setlocal updatetime=5000
+  cal s:render()
+endf
+
 fun! s:handleDescribe()
   let line = getline('.')
   let namespace = s:namespace(line)
@@ -262,38 +281,63 @@ endf
 
 fun! s:render()
   let save_cursor = getcurpos()
-
-
   if b:source_changed || !exists('b:source_cache')
-    let out = s:source()
-    let b:source_cache = out
+    let b:source_cache = s:source()
     let b:source_changed = 0
+  endif
+
+  if t:search_enabled
+    let lines = split(b:source_cache, "\n")
+    let rows = lines[1:]
+    cal filter(rows, 'v:val =~ "^' . b:current_search . '"')
+    let out = join(lines[:0] + rows, "\n")
   else
     let out = b:source_cache
   endif
 
   setlocal modifiable
+
+  " clear the buffer
   normal ggdG
+
+  " draw the result
   put=out
+
+  " remove the first empty line
   normal ggdd
+
+  " prepend the help message
   cal s:help()
 
-  call setpos('.', save_cursor)
-
-  " trigger CursorHold event
-  if exists("g:vikube_autoupdate")
-    call feedkeys("f\e")
+  if t:search_enabled
+    cal append(1, "")
+    if exists('b:current_search')
+      cal setline(2, b:current_search)
+    endif
+    let save_cursor[1] = 2
+    call setpos('.', save_cursor)
+    set modifiable
+    startinsert
+  else
+    call setpos('.', save_cursor)
+    " trigger CursorHold event
+    if exists("g:vikube_autoupdate")
+      call feedkeys("\e")
+    endif
+    set nomodifiable
   endif
 
-  set nomodifiable
 endf
+
 
 fun! s:Vikube(resource_type)
   tabnew
+  let t:search_enabled = 0
+  let t:result_window_buf = bufnr('%')
+
   let b:namespace = "default"
   let b:source_changed = 1
-  let b:search_enabled = 0
-  let b:search = ""
+  let b:current_search = ""
   let b:wide = 1
   let b:all_namespace = 0
   let b:resource_type = a:resource_type
@@ -305,13 +349,14 @@ fun! s:Vikube(resource_type)
   cal s:render()
   silent exec "setfiletype vikube-" . b:resource_type
 
-  " local bindings
+  " default local bindings
+  nnoremap <script><buffer> /     :cal <SID>handleStartSearch()<CR>
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> s     :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> w     :cal <SID>handleToggleWide()<CR>
-  nnoremap <script><buffer> a     :cal <SID>handleToggleAllNamepsace()<CR>
+  nnoremap <script><buffer> N     :cal <SID>handleToggleAllNamepsace()<CR>
   nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
   nnoremap <script><buffer> r     :cal <SID>handleResourceTypeChange()<CR>
 
@@ -321,9 +366,14 @@ fun! s:Vikube(resource_type)
   nnoremap <script><buffer> }}     :cal <SID>handleNextNamespace()<CR>
   nnoremap <script><buffer> {{     :cal <SID>handlePrevNamespace()<CR>
 
+  au! InsertEnter  <buffer> :cal <SID>handleStartSearch()
+  au! InsertLeave  <buffer> :cal <SID>handleStopSearch()
+  au! CursorMovedI <buffer> :cal <SID>handleApplySearch()
+
   syn match Comment +^#.*+ 
   syn match CurrentPod +^\*.*+
   hi link CurrentPod Identifier
+
 endf
 
 com! VikubePodList :cal s:Vikube("pod")
