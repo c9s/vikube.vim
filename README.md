@@ -70,26 +70,12 @@ VikubeExplorer
 - `L` - Label the selected resource.  (Input form: `Label=Value Label2=Value2`)
 - `D` - Delete the selected resource.
 
-VikubePodList
--------------
-
-- `D` - delete the selected pod.
-- `d` - describe the selected pod.
-- `s` - describe the selected pod.
-- `u` - Update list.
-
-VikubeServiceList
------------------
-
-- `D` - delete the selected service.
-- `d` - describe the selected service.
-
 VikubeTop
 ---------
 
 - `n` - switch to nodes top.
 - `p` - switch to pods top.
-- `d` - describe the selected pod or node.
+- `s` - describe the selected pod or node.
 
 Configuration
 ---------------
@@ -101,17 +87,18 @@ To turn on automatic list update:
 Default Mapping
 ---------------
 
-- `<leader>kc` - Open the **k**ubernetes **c**ontext list buffer.
+- `<leader>kc` - Open the (**k**)ubernetes (**c**)ontext list buffer.
 
-- `<leader>kno` - Open the **k**ubernetes **no**de list buffer.
+- `<leader>kno` - Open the (**k**)ubernetes (**no**)de list buffer.
 
-- `<leader>kpo` - Open the **k**ubernetes **po**d list buffer.
+- `<leader>kpo` - Open the (**k**)ubernetes (**po**)d list buffer.
 
-- `<leader>ksv` - Open the **k**ubernetes **s**er**v**ice list buffer.
+- `<leader>ksv` - Open the (**k**)ubernetes (**s**)er(**v**)ice list buffer.
 
-- `<leader>kt` - Open the **k**ubernetes **t**op buffer.
+- `<leader>kt` - Open the (**k**)ubernetes (**t**)op buffer.
 
-- `<leader>kpvc` - Open the **k**ubernetes persistent volume claim buffer.
+- `<leader>kpvc` - Open the (**k**)ubernetes persistent volume claim buffer.
+
 
 Changelogs
 ----------

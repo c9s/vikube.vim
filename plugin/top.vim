@@ -101,7 +101,7 @@ fun! s:VikubeTop()
   nnoremap <script><buffer> p     :cal <SID>handlePodMode()<CR>
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
-  nnoremap <script><buffer> d     :cal <SID>handleDescribe()<CR>
+  nnoremap <script><buffer> s     :cal <SID>handleDescribe()<CR>
 
   syn match Comment +^#.*+ 
 endf
