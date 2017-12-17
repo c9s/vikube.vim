@@ -51,7 +51,10 @@ fun! s:render()
   call setpos('.', save_cursor)
 
   " trigger CursorHold event
-  call feedkeys("f\e")
+  if exists("g:vikube_autoupdate")
+    call feedkeys("f\e")
+  endif
+
   set nomodifiable
 endf
 
