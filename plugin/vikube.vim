@@ -22,25 +22,24 @@ let g:kubernetes_resource_types = [
       \  'nodes', 'no',
       \  'persistentvolumeclaims', 'pvc',
       \  'persistentvolumes', 'pv',
-      \  'poddisruptionbudgets' ,
+      \  'poddisruptionbudgets',
       \  'podpreset',
-      \  'pods', 'po'
+      \  'pods', 'po',
       \  'podsecuritypolicies' ,
       \  'podtemplates',
       \  'replicasets' ,
       \  'replicationcontrollers' ,
-      \  'resourcequotas' ,
+      \  'resourcequotas',
       \  'rolebindings',
       \  'roles',
       \  'secrets',
-      \  'serviceaccounts' ,
+      \  'serviceaccounts',
       \  'services', 'svc',
       \  'statefulsets',
-      \  'storageclasses',
-      \ ]
+      \  'storageclasses']
 
 let g:kubernetes_common_resource_types = [
-      \"pods", 
+      \"pods",
       \"persistentvolumeclaims",
       \"persistentvolumes", 
       \"statefulsets", 
