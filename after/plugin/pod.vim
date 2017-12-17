@@ -75,7 +75,10 @@ fun! s:VikubePodList()
 endf
 
 com! VikubePodList :cal s:VikubePodList()
-au! CursorHold KPodList :cal <SID>render()
+
+if exists("g:vikube_autoupdate")
+  au! CursorHold KPodList :cal <SID>render()
+endif
 
 " VikubePodList
 nmap <leader>kp  :VikubePodList<CR>
