@@ -1,10 +1,10 @@
 fun! s:source()
-  return system("kubectl get pods -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+  return system("kubectl get nodes -o wide | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
 fun! s:help()
-  cal g:Help.reg("Kubernetes Pods:",
-    \" D - Delete Pod\n" .
+  cal g:Help.reg("Kubernetes Nodes:",
+    \" L - Label Node\n" .
     \" U - Update List\n"
     \,1)
 endf
@@ -24,16 +24,16 @@ fun! s:key(row)
 endf
 
 fun! s:handleUpdate()
-  redraw | echomsg "Updating pod list ..."
+  redraw | echomsg "Updating service list ..."
   cal s:render()
 endf
 
-fun! s:handleDeletePod()
+fun! s:handleLabelNode()
   let key = s:key(getline('.'))
   redraw | echomsg key
 
-  let out = system('kubectl delete pod ' . shellescape(key))
-  redraw | echomsg split(out, "\n")[0]
+  " let out = system('kubectl delete service ' . shellescape(key))
+  " redraw | echomsg split(out, "\n")[0]
   cal s:render()
 endf
 
@@ -55,30 +55,30 @@ fun! s:render()
   set nomodifiable
 endf
 
-fun! s:VikubePodList()
+fun! s:VikubeNodeList()
   tabnew
-  silent file KPodList
+  silent file KNodeList
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
   setlocal cursorline
   setlocal updatetime=5000
   cal s:render()
-  setfiletype kpodlist
+  setfiletype knodelist
 
   " local bindings
-  nnoremap <script><buffer> D     :cal <SID>handleDeletePod()<CR>
+  nnoremap <script><buffer> D     :cal <SID>handleLabelNode()<CR>
   nnoremap <script><buffer> U     :cal <SID>handleUpdate()<CR>
 
   syn match Comment +^#.*+ 
-  syn match CurrentPod +^\*.*+
-  hi link CurrentPod Identifier
+  syn match CurrentNode +^\*.*+
+  hi link CurrentNode Identifier
 endf
 
-com! VikubePodList :cal s:VikubePodList()
+com! VikubeNodeList :cal s:VikubeNodeList()
 
 if exists("g:vikube_autoupdate")
-  au! CursorHold KPodList :cal <SID>render()
+  au! CursorHold KNodeList :cal <SID>render()
 endif
 
-" VikubePodList
-nmap <leader>kp  :VikubePodList<CR>
+" VikubeNodeList
+nmap <leader>kn  :VikubeNodeList<CR>
