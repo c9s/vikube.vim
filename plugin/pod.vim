@@ -66,7 +66,7 @@ fun! s:source()
 endf
 
 fun! s:header()
-  return "Kubernetes object=" . b:resource_type . " namespace=" . b:namespace . " wide=" . b:wide
+  return "Kubernetes resource=" . b:resource_type . " namespace=" . b:namespace . " wide=" . b:wide
 endf
 
 fun! s:help()
@@ -120,7 +120,7 @@ fun! s:handleDelete()
   let key = s:key(getline('.'))
   let cmd = 'kubectl delete ' . b:resource_type . ' ' . shellescape(key)
   redraw | echomsg cmd
-  let out = system()
+  let out = system(cmd)
   redraw | echomsg split(out, "\n")[0]
   let b:source_changed = 1
   cal s:render()
@@ -213,9 +213,11 @@ fun! s:handleDescribe()
   let line = getline('.')
   let namespace = s:namespace(line)
   let key = s:key(line)
-  redraw | echomsg key 
-  let object = b:resource_type
-  let out = system('kubectl describe ' . object . ' --namespace=' . namespace . ' ' . key)
+  let resource_type = b:resource_type
+  let cmd = 'kubectl describe ' . resource_type . ' --namespace=' . namespace . ' ' . key
+  redraw | echomsg cmd
+
+  let out = system(cmd)
   botright new
   silent exec "file " . key
   setlocal noswapfile nobuflisted nowrap cursorline nonumber fdc=0
@@ -224,7 +226,7 @@ fun! s:handleDescribe()
   silent put=out
   redraw
   silent normal ggdd
-  silent exec "setfiletype kdescribe" . object
+  silent exec "setfiletype kdescribe" . resource_type
   setlocal nomodifiable
 
   nnoremap <script><buffer> q :q<CR>
@@ -237,8 +239,6 @@ endf
 fun! s:render()
   let save_cursor = getcurpos()
 
-  setlocal modifiable
-  normal ggdG
 
   if b:source_changed || !exists('b:source_cache')
     let out = s:source()
@@ -248,6 +248,8 @@ fun! s:render()
     let out = b:source_cache
   endif
 
+  setlocal modifiable
+  normal ggdG
   put=out
   normal ggdd
   cal s:help()
@@ -262,7 +264,7 @@ fun! s:render()
   set nomodifiable
 endf
 
-fun! s:Vikube(object)
+fun! s:Vikube(resource_type)
   tabnew
   let b:namespace = "default"
   let b:source_changed = 1
@@ -270,7 +272,7 @@ fun! s:Vikube(object)
   let b:search = ""
   let b:wide = 1
   let b:all_namespace = 0
-  let b:resource_type = a:object
+  let b:resource_type = a:resource_type
   exec "silent file VikubeExplorer"
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
