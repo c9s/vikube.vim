@@ -397,7 +397,9 @@ fun! s:render()
     let rows = lines[1:]
     let current_search = getline(2)
     let s = strpart(current_search, len(g:vikube_search_prefix))
-    cal filter(rows, 'v:val =~ "' . s . '"')
+    if len(s) > 0
+      cal filter(rows, 'v:val =~ "' . s . '"')
+    endif
     let out = join(lines[:0] + rows, "\n")
   else
     let out = b:source_cache
