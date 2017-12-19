@@ -221,7 +221,7 @@ func s:handleLogs()
   nnoremap <script><buffer> q :q<CR>
 endf
 
-func s:handleNamespaceChange()
+func! s:handleNamespaceChange()
   cal inputsave()
   let new_namespace = input('Namespace:', '', 'customlist,KubernetesNamespaceCompletion')
   cal inputrestore()
@@ -232,7 +232,7 @@ func s:handleNamespaceChange()
   cal s:render()
 endf
 
-func s:handleNextNamespace()
+func! s:handleNextNamespace()
   let namespaces = vikube#get_namespaces()
   let x = index(namespaces, b:namespace) + 1
   if x >= len(namespaces)
@@ -243,7 +243,7 @@ func s:handleNextNamespace()
   cal s:render()
 endf
 
-func s:handlePrevNamespace()
+func! s:handlePrevNamespace()
   let namespaces = vikube#get_namespaces()
   let x = index(namespaces, b:namespace) - 1
   if x < 0
@@ -254,7 +254,7 @@ func s:handlePrevNamespace()
   cal s:render()
 endf
 
-func s:handleResourceTypeChange()
+func! s:handleResourceTypeChange()
   cal inputsave()
   let new_resource_type = input('Resource Type:', '', 'customlist,KubernetesResourceTypeCompletion')
   cal inputrestore()
