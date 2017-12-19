@@ -82,6 +82,11 @@ fun! s:source()
   else
     let cmd = cmd . " --namespace=" . b:namespace
   endif
+
+  if b:show_all
+    let cmd = cmd . " --show-all"
+  endif
+
   redraw | echomsg cmd
   return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
@@ -304,7 +309,7 @@ fun! s:handleToggleAllNamepsace()
   cal s:render()
 endf
 
-fun! s:handleToggleWide()
+fun! s:handleToggleShowAll()
   if b:show_all == 1
     let b:show_all = 0
   else
