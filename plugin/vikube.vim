@@ -1,4 +1,4 @@
-
+let g:vikube_default_logs_tail = 100
 let g:kubernetes_resource_types = [
       \  'certificatesigningrequests',
       \  'clusterrolebindings',
@@ -181,6 +181,8 @@ fun! s:handleLogs()
   let resource_type = b:resource_type
   let key = s:key(getline('.'))
 
+  redraw | echomsg "querying container information..."
+
   if resource_type == "pods"
     let cmd = "kubectl get --namespace=" . b:namespace . ' ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
   else
@@ -205,7 +207,7 @@ fun! s:handleLogs()
       let cont = containers[0]
     endif
   endif
-  let cmd = "kubectl logs --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
+  let cmd = "kubectl logs --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
 
   botright new
   silent exec "file " . key

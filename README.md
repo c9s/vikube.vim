@@ -84,6 +84,10 @@ To turn on automatic list update:
 
     let g:vikube_autoupdate = 1
 
+To change the default tail lines for logs:
+
+    g:vikube_default_logs_tail = 100
+
 Default Mapping
 ---------------
 
