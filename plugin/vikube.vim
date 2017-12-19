@@ -175,9 +175,9 @@ func s:handleLogs()
   let key = s:key(getline('.'))
 
   if resource_type == "pods"
-    let cmd = "kubectl get " . resource_type . ' ' . key . " -o 'go-template' --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+    let cmd = "kubectl get --namespace=" . b:namespace . ' ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
   else
-    let cmd = "kubectl get " . resource_type . ' ' . key . " -o 'go-template' --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+    let cmd = "kubectl get --namespace=" . b:namespace . ' ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
   endif
 
   let out = system(cmd)
@@ -198,7 +198,7 @@ func s:handleLogs()
       let cont = containers[0]
     endif
   endif
-  let cmd = "kubectl logs -c " . cont . ' ' . resource_type . '/' . key
+  let cmd = "kubectl logs --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
 
   botright new
   silent exec "file " . key
