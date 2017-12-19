@@ -172,7 +172,7 @@ fun! s:handleLabel()
   cal s:render()
 endf
 
-func s:handleLogs()
+fun! s:handleLogs()
   if index(g:kubernetes_loggable_resource_types, b:resource_type) == -1
     redraw | echomsg "logs are only for " . join(g:kubernetes_loggable_resource_types, ',')
     return
@@ -228,7 +228,7 @@ func s:handleLogs()
   nnoremap <script><buffer> q :q<CR>
 endf
 
-func! s:handleNamespaceChange()
+fun! s:handleNamespaceChange()
   cal inputsave()
   let new_namespace = input('Namespace:', '', 'customlist,KubernetesNamespaceCompletion')
   cal inputrestore()
@@ -239,7 +239,7 @@ func! s:handleNamespaceChange()
   cal s:render()
 endf
 
-func! s:handleNextNamespace()
+fun! s:handleNextNamespace()
   let namespaces = vikube#get_namespaces()
   let x = index(namespaces, b:namespace) + 1
   if x >= len(namespaces)
@@ -250,7 +250,7 @@ func! s:handleNextNamespace()
   cal s:render()
 endf
 
-func! s:handlePrevNamespace()
+fun! s:handlePrevNamespace()
   let namespaces = vikube#get_namespaces()
   let x = index(namespaces, b:namespace) - 1
   if x < 0
@@ -261,7 +261,7 @@ func! s:handlePrevNamespace()
   cal s:render()
 endf
 
-func! s:handleResourceTypeChange()
+fun! s:handleResourceTypeChange()
   cal inputsave()
   let new_resource_type = input('Resource Type:', '', 'customlist,KubernetesResourceTypeCompletion')
   cal inputrestore()
