@@ -99,9 +99,11 @@ fun! s:help()
     \" u     - Update List\n" .
     \" e     - Explain the current resource\n" .
     \" w     - Toggle wide option\n" .
+    \" a     - Toggle show all option\n" .
     \" N     - Toggle all namespaces\n" .
     \" n     - Switch namespace view\n" .
     \" r     - Switch resource type view\n" .
+    \" l     - See logs of " . b:resource_type . "\n" .
     \" L     - Label " . b:resource_type . "\n" .
     \" D     - Delete " . b:resource_type . "\n" .
     \" s     - Describe " . b:resource_type . "\n" .
@@ -303,6 +305,17 @@ fun! s:handleToggleAllNamepsace()
 endf
 
 fun! s:handleToggleWide()
+  if b:show_all == 1
+    let b:show_all = 0
+  else
+    let b:show_all = 1
+  endif
+
+  let b:source_changed = 1
+  cal s:render()
+endf
+
+fun! s:handleToggleWide()
   if b:wide == 1
     let b:wide = 0
   else
@@ -451,6 +464,7 @@ fun! s:Vikube(resource_type)
   let t:result_window_buf = bufnr('%')
 
   let b:namespace = "default"
+  let b:show_all = 0
   let b:source_changed = 1
   let b:current_search = ""
   let b:wide = 1
@@ -475,6 +489,7 @@ fun! s:Vikube(resource_type)
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> s     :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> e     :cal <SID>handleExplain()<CR>
+  nnoremap <script><buffer> a     :cal <SID>handleToggleShowAll()<CR>
   nnoremap <script><buffer> w     :cal <SID>handleToggleWide()<CR>
   nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
   nnoremap <script><buffer> N     :cal <SID>handleToggleAllNamepsace()<CR>
