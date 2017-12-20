@@ -1,4 +1,6 @@
-let g:vikube_default_logs_tail = 100
+if !exists("g:vikube_default_logs_tail")
+  let g:vikube_default_logs_tail = 100
+endif
 let g:kubernetes_resource_types = [
       \  'certificatesigningrequests',
       \  'clusterrolebindings',
