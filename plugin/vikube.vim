@@ -291,8 +291,7 @@ endf
 
 
 fun! s:handleNextResourceType()
-  let x = index(g:kubernetes_common_resource_types, b:resource_type)
-  let x = x + 1
+  let x = index(g:kubernetes_common_resource_types, b:resource_type) + 1
   if x >= len(g:kubernetes_common_resource_types)
     let x = 0
   endif
