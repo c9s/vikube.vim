@@ -430,12 +430,15 @@ fun! s:render()
   setlocal modifiable
 
   " clear the buffer
+  redraw
   normal ggdG
 
   " draw the result
+  redraw
   put=out
 
   " remove the first empty line
+  redraw
   normal ggdd
 
   " prepend the help message
