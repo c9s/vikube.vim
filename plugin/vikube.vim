@@ -522,6 +522,10 @@ fun! s:Vikube(resource_type)
   nnoremap <script><buffer> }}     :cal <SID>handleNextNamespace()<CR>
   nnoremap <script><buffer> {{     :cal <SID>handlePrevNamespace()<CR>
 
+  inoremap <script><buffer> <C-a>  <home>
+  inoremap <script><buffer> <C-e>  <end>
+  inoremap <script><buffer> <CR>  <esc>
+
   au! InsertEnter  <buffer> :cal <SID>handleStartSearch()
   au! InsertLeave  <buffer> :cal <SID>handleStopSearch()
   au! CursorMovedI <buffer> :cal <SID>handleApplySearch()
