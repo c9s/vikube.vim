@@ -461,14 +461,13 @@ endf
 
 fun! s:handleStartSearch()
   let t:search_enabled = 1
-  let b:current_search = ""
-  setlocal updatetime=1000
+  setlocal nocursorline
   cal s:render()
 endf
 
 fun! s:handleStopSearch()
   let t:search_enabled = 0
-  setlocal updatetime=5000
+  setlocal cursorline
   cal s:render()
 endf
 
@@ -527,14 +526,19 @@ fun! s:render()
     setlocal modifiable
     startinsert
   else
+    if save_cursor[1] < 4 && line('$') >= 5
+      let save_cursor[1] = 4
+    endif
+
     call setpos('.', save_cursor)
+
     " trigger CursorHold event
     if exists("g:vikube_autoupdate")
       call feedkeys("\e")
     endif
     setlocal nomodifiable
+    redraw | echomsg "list updated at " . strftime("%c")
   endif
-
 endf
 
 
@@ -554,13 +558,15 @@ fun! s:Vikube(resource_type)
   setlocal noswapfile  
   setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
   setlocal cursorline
-  setlocal updatetime=5000
+  setlocal updatetime=2000
   cal s:render()
   silent exec "setfiletype vikube-" . b:resource_type
 
   " default local bindings
   nnoremap <script><buffer> /     :cal <SID>handleStartSearch()<CR>
 
+
+  " Modification Actions
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
   nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
   nnoremap <script><buffer> S     :cal <SID>handleScale()<CR>
