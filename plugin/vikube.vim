@@ -161,6 +161,11 @@ fun! s:handleUpdate()
 endf
 
 fun! s:handleDelete()
+  if line('.') < 4
+    return
+  endif
+
+
   let key = s:key(getline('.'))
   let cmd = 'kubectl delete ' . b:resource_type . ' ' . shellescape(key)
   redraw | echomsg cmd
@@ -171,6 +176,10 @@ fun! s:handleDelete()
 endf
 
 fun! s:handleLabel()
+  if line('.') < 4
+    return
+  endif
+  
   let key = s:key(getline('.'))
 
   cal inputsave()
@@ -185,6 +194,10 @@ fun! s:handleLabel()
 endf
 
 fun! s:handleLogs()
+  if line('.') < 4
+    return
+  endif
+  
   if index(g:kubernetes_loggable_resource_types, b:resource_type) == -1
     redraw | echomsg "logs are only for " . join(g:kubernetes_loggable_resource_types, ',')
     return
@@ -365,6 +378,10 @@ endf
 
 
 fun! s:handleExplain()
+  if line('.') < 4
+    return
+  endif
+  
   let line = getline('.')
   let namespace = s:namespace(line)
   let key = s:key(line)
@@ -389,6 +406,10 @@ fun! s:handleExplain()
 endf
 
 fun! s:handleDescribe()
+  if line('.') < 4
+    return
+  endif
+  
   let line = getline('.')
   let namespace = s:namespace(line)
   let key = s:key(line)
