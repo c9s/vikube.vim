@@ -1,6 +1,16 @@
 if !exists("g:vikube_default_logs_tail")
   let g:vikube_default_logs_tail = 100
 endif
+
+
+let g:kubernetes_resource_aliases = {
+      \  'pods': 'po',
+      \  'nodes': 'no',
+      \  'services': 'svc',
+      \  'persistentvolumeclaims': 'pvc',
+      \  'persistentvolumes': 'pv'
+      \}
+
 let g:kubernetes_resource_types = [
       \  'certificatesigningrequests',
       \  'clusterrolebindings',
@@ -21,12 +31,12 @@ let g:kubernetes_resource_types = [
       \  'limitranges' ,
       \  'namespaces' ,
       \  'networkpolicies' ,
-      \  'nodes', 'no',
-      \  'persistentvolumeclaims', 'pvc',
-      \  'persistentvolumes', 'pv',
+      \  'nodes',
+      \  'persistentvolumeclaims',
+      \  'persistentvolumes',
       \  'poddisruptionbudgets',
       \  'podpreset',
-      \  'pods', 'po',
+      \  'pods',
       \  'podsecuritypolicies' ,
       \  'podtemplates',
       \  'replicasets' ,
@@ -36,7 +46,7 @@ let g:kubernetes_resource_types = [
       \  'roles',
       \  'secrets',
       \  'serviceaccounts',
-      \  'services', 'svc',
+      \  'services',
       \  'statefulsets',
       \  'storageclasses']
 
@@ -69,7 +79,7 @@ fun! g:KubernetesNamespaceCompletion(lead, cmd, pos)
 endf
 
 fun! g:KubernetesResourceTypeCompletion(lead, cmd, pos)
-  let entries = g:kubernetes_resource_types[:]
+  let entries = g:kubernetes_resource_types[:] + values(g:kubernetes_resource_aliases)
   cal filter(entries , 'v:val =~ "^' .a:lead. '"')
   return entries
 endf
