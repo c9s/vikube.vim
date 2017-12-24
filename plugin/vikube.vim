@@ -219,7 +219,7 @@ fun! s:handleLabel()
   let labels = input('Label (to ' . key . '):', '')
   cal inputrestore()
 
-  let out = system('kubectl label ' . b:resource_type . ' ' . shellescape(key) . ' ' . labels)
+  let out = system(vikube#kubectl_ns('label', b:namespace, b:resource_type, shellescape(key), labels))
   redraw | echomsg split(out, "\n")[0]
 
   let b:source_changed = 1
