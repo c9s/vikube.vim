@@ -109,22 +109,24 @@ endf
 
 fun! s:help()
   cal g:Help.reg(s:header(),
-    \" ]]    - Next resource type\n".
-    \" [[    - Previous resource type\n".
-    \" }}    - Next namespace\n".
-    \" {{    - Previous namespace type\n".
-    \" u     - Update List\n" .
-    \" e     - Explain the current resource\n" .
-    \" w     - Toggle wide option\n" .
-    \" a     - Toggle show all option\n" .
-    \" N     - Toggle all namespaces\n" .
-    \" n     - Switch namespace view\n" .
-    \" r     - Switch resource type view\n" .
-    \" l     - See logs of " . b:resource_type . "\n" .
-    \" L     - Label " . b:resource_type . "\n" .
-    \" D     - Delete " . b:resource_type . "\n" .
-    \" s     - Describe " . b:resource_type . "\n" .
-    \" Enter - Describe " . b:resource_type . "\n"
+    \" ]]      - Next resource type\n".
+    \" [[      - Previous resource type\n".
+    \" <Right> - Next resource type\n".
+    \" <Left>  - Previous resource type\n".
+    \" }}      - Next namespace\n".
+    \" {{      - Previous namespace type\n".
+    \" u       - Update List\n" .
+    \" e       - Explain the current resource\n" .
+    \" w       - Toggle wide option\n" .
+    \" a       - Toggle show all option\n" .
+    \" N       - Toggle all namespaces\n" .
+    \" n       - Switch namespace view\n" .
+    \" r       - Switch resource type view\n" .
+    \" l       - See logs of " . b:resource_type . "\n" .
+    \" L       - Label " . b:resource_type . "\n" .
+    \" D       - Delete " . b:resource_type . "\n" .
+    \" s       - Describe " . b:resource_type . "\n" .
+    \" Enter   - Describe " . b:resource_type . "\n"
     \,1)
 endf
 
@@ -539,6 +541,9 @@ fun! s:Vikube(resource_type)
 
   nnoremap <script><buffer> ]]     :cal <SID>handleNextResourceType()<CR>
   nnoremap <script><buffer> [[     :cal <SID>handlePrevResourceType()<CR>
+
+  nnoremap <script><buffer> <Right>     :cal <SID>handleNextResourceType()<CR>
+  nnoremap <script><buffer> <Left>     :cal <SID>handlePrevResourceType()<CR>
 
   nnoremap <script><buffer> }}     :cal <SID>handleNextNamespace()<CR>
   nnoremap <script><buffer> {{     :cal <SID>handlePrevNamespace()<CR>
