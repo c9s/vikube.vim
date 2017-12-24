@@ -531,7 +531,7 @@ fun! s:Vikube(resource_type)
   au! CursorMovedI <buffer> :cal <SID>handleApplySearch()
 
   syn match Comment +^#.*+ 
-  syn region Search start="^> .*" end="$" keepend
+  " syn region Search start="^> .*" end="$" keepend
   hi CursorLine term=reverse cterm=reverse ctermbg=darkcyan
 endf
 
