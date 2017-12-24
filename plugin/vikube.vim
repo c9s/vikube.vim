@@ -2,6 +2,9 @@ if !exists("g:vikube_default_logs_tail")
   let g:vikube_default_logs_tail = 100
 endif
 
+" Deployment, ReplicaSet, Replication Controller, or Job
+
+let g:kubernetes_scalable_resources = ["deployments", "replicasets", "replicationcontrollers", "jobs"]
 
 let g:kubernetes_resource_aliases = {
       \  'pods': 'po',
@@ -168,12 +171,39 @@ fun! s:handleDelete()
     return
   endif
 
-
   let key = s:key(getline('.'))
   let cmd = 'kubectl delete ' . b:resource_type . ' ' . shellescape(key)
   redraw | echomsg cmd
   let out = system(cmd)
   redraw | echomsg split(out, "\n")[0]
+  let b:source_changed = 1
+  cal s:render()
+endf
+
+fun! s:handleScale()
+  if line('.') < 4
+    return
+  endif
+
+  if index(g:kubernetes_scalable_resources, b:resource_type) == -1
+    redraw | echomsg b:resource_type . " are not scalable."
+    return
+  endif
+
+  let key = s:key(getline('.'))
+
+  cal inputsave()
+  let num_replicas = input('Scale ' . key . ' to N replicas:', '')
+  cal inputrestore()
+
+  if len(num_replicas) == 0
+    redraw | echomsg "Please enter a number"
+    return
+  endif
+
+  let out = system(vikube#kubectl_ns('scale', b:namespace, '--replicas=' . num_replicas, b:resource_type, key))
+  redraw | echomsg split(out, "\n")[0]
+
   let b:source_changed = 1
   cal s:render()
 endf
@@ -533,8 +563,10 @@ fun! s:Vikube(resource_type)
 
   nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
   nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
-  nnoremap <script><buffer> l     :cal <SID>handleLogs()<CR>
+  nnoremap <script><buffer> S     :cal <SID>handleScale()<CR>
 
+  " Actions
+  nnoremap <script><buffer> l     :cal <SID>handleLogs()<CR>
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> s     :cal <SID>handleDescribe()<CR>
