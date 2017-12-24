@@ -465,7 +465,7 @@ fun! s:render()
       let save_cursor[2] = len(g:vikube_search_prefix) + 1
     endif
     call setpos('.', save_cursor)
-    set modifiable
+    setlocal modifiable
     startinsert
   else
     call setpos('.', save_cursor)
@@ -473,7 +473,7 @@ fun! s:render()
     if exists("g:vikube_autoupdate")
       call feedkeys("\e")
     endif
-    set nomodifiable
+    setlocal nomodifiable
   endif
 
 endf
