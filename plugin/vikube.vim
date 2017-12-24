@@ -166,16 +166,29 @@ fun! s:handleUpdate()
   cal s:render()
 endf
 
-fun! s:handleDelete()
-  if line('.') < 4
+fun! s:deleteResource(line)
+  if a:line < 4
     return
   endif
 
-  let key = s:key(getline('.'))
+  let key = s:key(getline(a:line))
   let cmd = 'kubectl delete ' . b:resource_type . ' ' . shellescape(key)
   redraw | echomsg cmd
   let out = system(cmd)
   redraw | echomsg split(out, "\n")[0]
+endf
+
+fun! s:handleDelete(line1, line2)
+  if line('.') < 4
+    return
+  endif
+
+  let lnum = a:line1
+  while lnum <= a:line2
+      call s:deleteResource(lnum)
+      let lnum = lnum + 1
+  endwhile
+
   let b:source_changed = 1
   cal s:render()
 endf
@@ -550,7 +563,7 @@ fun! s:Vikube(resource_type)
   let b:namespace = "default"
   let b:show_all = 0
   let b:source_changed = 1
-  let b:current_search = ""
+  let b:current_search = g:vikube_search_prefix
   let b:wide = 1
   let b:all_namespace = 0
   let b:resource_type = a:resource_type
@@ -565,9 +578,12 @@ fun! s:Vikube(resource_type)
   " default local bindings
   nnoremap <script><buffer> /     :cal <SID>handleStartSearch()<CR>
 
+  com! -buffer -range VikubeDeleteResource  :call <SID>handleDelete(<line1>, <line2>)
 
   " Modification Actions
-  nnoremap <script><buffer> D     :cal <SID>handleDelete()<CR>
+  nnoremap <script><buffer> D     :VikubeDeleteResource<CR>
+  vnoremap <script><buffer> D     :VikubeDeleteResource<CR>
+
   nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
   nnoremap <script><buffer> S     :cal <SID>handleScale()<CR>
 
