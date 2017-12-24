@@ -124,6 +124,7 @@ fun! s:help()
     \" r       - Switch resource type view\n" .
     \" l       - See logs of " . b:resource_type . "\n" .
     \" L       - Label " . b:resource_type . "\n" .
+    \" S       - Scale " . b:resource_type . "\n" .
     \" D       - Delete " . b:resource_type . "\n" .
     \" s       - Describe " . b:resource_type . "\n" .
     \" Enter   - Describe " . b:resource_type . "\n"
@@ -257,6 +258,69 @@ fun! s:handleLogs()
   nnoremap <script><buffer> q :q<CR>
 endf
 
+
+
+fun! s:handleExplain()
+  if line('.') < 4
+    return
+  endif
+  
+  let line = getline('.')
+  let namespace = s:namespace(line)
+  let key = s:key(line)
+  let resource_type = b:resource_type
+  let cmd = 'kubectl explain ' . resource_type
+  redraw | echomsg cmd
+
+  let out = system(cmd)
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
+  setlocal wrap
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  setlocal nolist
+  silent put=out
+  redraw
+  silent normal ggdd
+  silent exec "setfiletype kexplain" . resource_type
+  setlocal nomodifiable
+  nnoremap <script><buffer> q :q<CR>
+endf
+
+fun! s:handleDescribe()
+  if line('.') < 4
+    return
+  endif
+  
+  let line = getline('.')
+  let namespace = s:namespace(line)
+  let key = s:key(line)
+  let resource_type = b:resource_type
+  let cmd = 'kubectl describe ' . resource_type . ' --namespace=' . namespace . ' ' . key
+  redraw | echomsg cmd
+
+  let out = system(cmd)
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
+  setlocal wrap nocursorline
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  silent put=out
+  redraw
+  silent normal ggdd
+  silent exec "setfiletype kdescribe" . resource_type
+  setlocal nomodifiable
+
+  nnoremap <script><buffer> q :q<CR>
+
+  syn match Label +^\S.\{-}:+ 
+  syn match Error +Error+ 
+endf
+
+
+
 fun! s:handleNamespaceChange()
   cal inputsave()
   let new_namespace = input('Namespace:', '', 'customlist,KubernetesNamespaceCompletion')
@@ -379,64 +443,6 @@ fun! s:handleStopSearch()
 endf
 
 
-fun! s:handleExplain()
-  if line('.') < 4
-    return
-  endif
-  
-  let line = getline('.')
-  let namespace = s:namespace(line)
-  let key = s:key(line)
-  let resource_type = b:resource_type
-  let cmd = 'kubectl explain ' . resource_type
-  redraw | echomsg cmd
-
-  let out = system(cmd)
-  botright new
-  silent exec "file " . key
-  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
-  setlocal wrap
-  setlocal buftype=nofile bufhidden=wipe
-  setlocal modifiable
-  setlocal nolist
-  silent put=out
-  redraw
-  silent normal ggdd
-  silent exec "setfiletype kexplain" . resource_type
-  setlocal nomodifiable
-  nnoremap <script><buffer> q :q<CR>
-endf
-
-fun! s:handleDescribe()
-  if line('.') < 4
-    return
-  endif
-  
-  let line = getline('.')
-  let namespace = s:namespace(line)
-  let key = s:key(line)
-  let resource_type = b:resource_type
-  let cmd = 'kubectl describe ' . resource_type . ' --namespace=' . namespace . ' ' . key
-  redraw | echomsg cmd
-
-  let out = system(cmd)
-  botright new
-  silent exec "file " . key
-  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
-  setlocal wrap nocursorline
-  setlocal buftype=nofile bufhidden=wipe
-  setlocal modifiable
-  silent put=out
-  redraw
-  silent normal ggdd
-  silent exec "setfiletype kdescribe" . resource_type
-  setlocal nomodifiable
-
-  nnoremap <script><buffer> q :q<CR>
-
-  syn match Label +^\S.\{-}:+ 
-  syn match Error +Error+ 
-endf
 
 
 fun! s:render()
