@@ -423,14 +423,13 @@ fun! s:render()
     let b:source_changed = 0
   endif
 
-  if t:search_enabled
+  let current_search = getline(2)
+  let s = strpart(current_search, len(g:vikube_search_prefix))
+
+  if len(s) > 0
     let lines = split(b:source_cache, "\n")
     let rows = lines[1:]
-    let current_search = getline(2)
-    let s = strpart(current_search, len(g:vikube_search_prefix))
-    if len(s) > 0
-      cal filter(rows, 'v:val =~ "' . s . '"')
-    endif
+    cal filter(rows, 'v:val =~ "' . s . '"')
     let out = join(lines[:0] + rows, "\n")
   else
     let out = b:source_cache
