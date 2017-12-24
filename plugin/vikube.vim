@@ -460,13 +460,13 @@ endf
 
 
 fun! s:handleStartSearch()
-  let t:search_enabled = 1
+  let t:search_inserting = 1
   setlocal nocursorline
   cal s:render()
 endf
 
 fun! s:handleStopSearch()
-  let t:search_enabled = 0
+  let t:search_inserting = 0
   setlocal cursorline
   cal s:render()
 endf
@@ -517,7 +517,7 @@ fun! s:render()
     cal setline(2, b:current_search)
   endif
 
-  if t:search_enabled
+  if t:search_inserting
     let save_cursor[1] = 2
     if save_cursor[2] < len(g:vikube_search_prefix) + 1
       let save_cursor[2] = len(g:vikube_search_prefix) + 1
@@ -544,7 +544,7 @@ endf
 
 fun! s:Vikube(resource_type)
   tabnew
-  let t:search_enabled = 0
+  let t:search_inserting = 0
   let t:result_window_buf = bufnr('%')
 
   let b:namespace = "default"
