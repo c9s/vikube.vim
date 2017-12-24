@@ -453,13 +453,14 @@ fun! s:render()
   " prepend the help message
   cal s:help()
 
+  cal append(1, "")
+  if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
+    cal setline(2, g:vikube_search_prefix)
+  else
+    cal setline(2, b:current_search)
+  endif
+
   if t:search_enabled
-    cal append(1, "")
-    if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
-      cal setline(2, g:vikube_search_prefix)
-    else
-      cal setline(2, b:current_search)
-    endif
     let save_cursor[1] = 2
     if save_cursor[2] < len(g:vikube_search_prefix) + 1
       let save_cursor[2] = len(g:vikube_search_prefix) + 1
