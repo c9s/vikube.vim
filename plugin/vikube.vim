@@ -106,6 +106,23 @@ fun! s:source()
   return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
+fun! s:chooseContainer(containers)
+  if len(a:containers) == 1
+    return a:containers[0]
+  else
+    cal inputsave()
+    " let cont = input('Container (' . join(containers, ',') . '):', '')
+    let items = a:containers[:]
+    let list = ['Select Container:'] + map(items, 'v:key + 1 . ") " . v:val')
+    let x = inputlist(list)
+    cal inputrestore()
+    if x > 0
+      return a:containers[x - 1]
+    endif
+    return a:containers[0]
+  endif
+endf
+
 fun! s:header()
   return "Kubernetes namespace=" . b:namespace . " resource=" . b:resource_type . " wide=" . b:wide
 endf
@@ -126,6 +143,7 @@ fun! s:help()
     \" n       - Switch namespace view\n" .
     \" r       - Switch resource type view\n" .
     \" l       - See logs of " . b:resource_type . "\n" .
+    \" x       - Execute in the selected pod\n" .
     \" L       - Label " . b:resource_type . "\n" .
     \" S       - Scale " . b:resource_type . "\n" .
     \" D       - Delete " . b:resource_type . "\n" .
@@ -239,6 +257,29 @@ fun! s:handleLabel()
   cal s:render()
 endf
 
+fun! s:handleExec()
+  if line('.') < 4
+    return
+  endif
+
+  if b:resource_type != "pods"
+    redraw | echomsg "you can only exec into pods."
+    return
+  endif
+
+  let key = s:key(getline('.'))
+  let containers = vikube#get_pod_containers(b:namespace, key)
+  let cont = s:chooseContainer(containers)
+
+  cal inputsave()
+  let contcmd = input('Enter the command (' . cont . '): ', 'sh')
+  cal inputrestore()
+
+  let cmd = "kubectl exec -it --namespace=" . b:namespace . " --container=" . cont . ' ' . key . ' ' . contcmd
+  let termcmd = "terminal ++close " . cmd
+  exec termcmd
+endf
+
 fun! s:handleLogs()
   if line('.') < 4
     return
@@ -262,22 +303,7 @@ fun! s:handleLogs()
 
   let out = system(cmd)
   let containers = split(out)
-
-  if len(containers) == 1
-    let cont = containers[0]
-  else
-    cal inputsave()
-    " let cont = input('Container (' . join(containers, ',') . '):', '')
-    let items = containers[:]
-    let list = ['Select Container:'] + map(items, 'v:key + 1 . ") " . v:val')
-    let x = inputlist(list)
-    cal inputrestore()
-    if x > 0
-      let cont = containers[x - 1]
-    else
-      let cont = containers[0]
-    endif
-  endif
+  let cont = s:chooseContainer(containers)
   let cmd = "kubectl logs --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
 
   botright new
@@ -589,6 +615,7 @@ fun! s:Vikube(resource_type)
 
   " Actions
   nnoremap <script><buffer> l     :cal <SID>handleLogs()<CR>
+  nnoremap <script><buffer> x     :cal <SID>handleExec()<CR>
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
   nnoremap <script><buffer> s     :cal <SID>handleDescribe()<CR>
