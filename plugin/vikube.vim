@@ -2,6 +2,7 @@ if !exists("g:vikube_default_logs_tail")
   let g:vikube_default_logs_tail = 100
 endif
 
+
 " Deployment, ReplicaSet, Replication Controller, or Job
 
 let g:kubernetes_scalable_resources = ["deployments", "replicasets", "replicationcontrollers", "jobs"]
@@ -124,7 +125,13 @@ fun! s:chooseContainer(containers)
 endf
 
 fun! s:header()
-  return "Kubernetes namespace=" . b:namespace . " resource=" . b:resource_type . " wide=" . b:wide
+  let context = vikube#get_current_context()
+  return "Kubernetes "
+        \ . " context=" . context
+        \ . " namespace=" . b:namespace 
+        \ . " resource=" . b:resource_type 
+        \ . " wide=" . b:wide
+        \ . " all=" . b:show_all
 endf
 
 fun! s:help()
@@ -549,11 +556,10 @@ fun! s:render()
   " prepend the help message
   cal s:help()
 
-  cal append(1, "")
   if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
-    cal setline(2, g:vikube_search_prefix)
+    cal append(1, g:vikube_search_prefix)
   else
-    cal setline(2, b:current_search)
+    cal append(1, b:current_search)
   endif
 
   if t:search_inserting
@@ -645,7 +651,8 @@ fun! s:Vikube(resource_type)
 
   syn match Comment +^#.*+ 
   " syn region Search start="^> .*" end="$" keepend
-  hi CursorLine term=reverse cterm=reverse ctermbg=darkcyan
+  hi CursorLine term=reverse cterm=reverse ctermbg=darkcyan guifg=white guibg=darkcyan
+  hi Cursor term=reverse cterm=reverse ctermbg=darkcyan guifg=white guibg=darkcyan
 endf
 
 com! VikubeNodeList :cal s:Vikube("nodes")

@@ -9,6 +9,10 @@ fun! vikube#get_pod_containers(namespace, pod)
   return split(out)
 endf
 
+fun! vikube#get_current_context()
+  return split(system("kubectl config current-context"))[0]
+endf
+
 fun! vikube#get_namespaces()
   return split(system("kubectl get namespace --no-headers | awk '{ print $1 }'"))
 endf
