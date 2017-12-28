@@ -460,7 +460,7 @@ endf
 
 fun! s:handleContextChange()
   cal inputsave()
-  let new_context = input('Resource Type:', '', 'customlist,KubernetesContextCompletion')
+  let new_context = input('Context:', '', 'customlist,KubernetesContextCompletion')
   cal inputrestore()
   if len(new_context) > 0 && index(g:KubernetesContexts(), new_context) != -1
     let b:context = new_context
