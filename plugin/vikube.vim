@@ -99,20 +99,28 @@ fun! g:KubernetesContextCompletion(lead, cmd, pos)
   return entries
 endf
 
+fun! s:cmdbase()
+  let cmd = "kubectl"
+  if len(b:context) > 0
+    let cmd = cmd . " --context=" . b:context
+  endif
+  if len(b:namespace) > 0
+    let cmd = cmd . " --namespace=" . b:namespace
+  endif
+  return cmd
+endf
+
 fun! s:source()
-  let cmd = "kubectl get " . b:resource_type
+  let cmd = s:cmdbase()
+
+  let cmd = cmd . " get " . b:resource_type
+
   if b:wide
     let cmd = cmd . " -o wide"
   endif
 
-  if len(b:context) > 0
-    let cmd = cmd . " --context=" . b:context
-  endif
-
   if b:all_namespace
     let cmd = cmd . " --all-namespaces"
-  else
-    let cmd = cmd . " --namespace=" . b:namespace
   endif
 
   if b:show_all
@@ -217,7 +225,7 @@ fun! s:deleteResource(line)
   endif
 
   let key = s:key(getline(a:line))
-  let cmd = 'kubectl delete ' . b:resource_type . ' ' . shellescape(key)
+  let cmd = s:cmdbase() . ' delete ' . b:resource_type . ' ' . shellescape(key)
   redraw | echomsg cmd
   let out = system(cmd)
   redraw | echomsg split(out, "\n")[0]
@@ -302,7 +310,7 @@ fun! s:handleExec()
   let contcmd = input('Enter the command (' . cont . '): ', 'sh')
   cal inputrestore()
 
-  let cmd = "kubectl exec -it --namespace=" . b:namespace . " --container=" . cont . ' ' . key . ' ' . contcmd
+  let cmd = s:cmdbase() . " exec -it --namespace=" . b:namespace . " --container=" . cont . ' ' . key . ' ' . contcmd
   let termcmd = "terminal ++close " . cmd
   exec termcmd
 endf
@@ -323,15 +331,15 @@ fun! s:handleLogs()
   redraw | echomsg "querying container information..."
 
   if resource_type == "pods"
-    let cmd = "kubectl get --namespace=" . b:namespace . ' ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+    let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
   else
-    let cmd = "kubectl get --namespace=" . b:namespace . ' ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+    let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
   endif
 
   let out = system(cmd)
   let containers = split(out)
   let cont = s:chooseContainer(containers)
-  let cmd = "kubectl logs --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
+  let cmd = s:cmdbase() . " logs --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
 
   botright new
   silent exec "file " . key
@@ -365,7 +373,7 @@ fun! s:handleExplain()
   let namespace = s:namespace(line)
   let key = s:key(line)
   let resource_type = b:resource_type
-  let cmd = 'kubectl explain ' . resource_type
+  let cmd = s:cmdbase() . ' explain ' . resource_type
   redraw | echomsg cmd
 
   let out = system(cmd)
@@ -393,7 +401,7 @@ fun! s:handleDescribe()
   let namespace = s:namespace(line)
   let key = s:key(line)
   let resource_type = b:resource_type
-  let cmd = 'kubectl describe ' . resource_type . ' --namespace=' . namespace . ' ' . key
+  let cmd = s:cmdbase() . ' describe ' . resource_type . ' --namespace=' . namespace . ' ' . key
   redraw | echomsg cmd
 
   let out = system(cmd)
