@@ -88,11 +88,27 @@ fun! g:KubernetesResourceTypeCompletion(lead, cmd, pos)
   return entries
 endf
 
+fun! g:KubernetesContexts()
+  let out = system("kubectl config get-contexts --no-headers | cut -d' ' -f2- | awk '{ print $1 }'")
+  return split(out)
+endf
+
+fun! g:KubernetesContextCompletion(lead, cmd, pos)
+  let entries = g:KubernetesContexts()
+  cal filter(entries , 'v:val =~ "^' .a:lead. '"')
+  return entries
+endf
+
 fun! s:source()
   let cmd = "kubectl get " . b:resource_type
   if b:wide
     let cmd = cmd . " -o wide"
   endif
+
+  if len(b:context) > 0
+    let cmd = cmd . " --context=" . b:context
+  endif
+
   if b:all_namespace
     let cmd = cmd . " --all-namespaces"
   else
@@ -126,6 +142,9 @@ endf
 
 fun! s:header()
   let context = vikube#get_current_context()
+  if exists('b:context') && len(b:context) > 0
+    let context = b:context
+  endif
   return "Kubernetes "
         \ . " context=" . context
         \ . " namespace=" . b:namespace 
@@ -149,6 +168,7 @@ fun! s:help()
     \" N       - Toggle all namespaces\n" .
     \" n       - Switch namespace view\n" .
     \" r       - Switch resource type view\n" .
+    \" cx      - Switch context\n" .
     \" l       - See logs of " . b:resource_type . "\n" .
     \" x       - Execute in the selected pod\n" .
     \" L       - Label " . b:resource_type . "\n" .
@@ -430,6 +450,18 @@ fun! s:handlePrevNamespace()
   cal s:render()
 endf
 
+fun! s:handleContextChange()
+  cal inputsave()
+  let new_context = input('Resource Type:', '', 'customlist,KubernetesContextCompletion')
+  cal inputrestore()
+  if len(new_context) > 0 && index(g:KubernetesContexts(), new_context) != -1
+    let b:context = new_context
+  endif
+  let b:source_changed = 1
+  cal s:render()
+endf
+
+
 fun! s:handleResourceTypeChange()
   cal inputsave()
   let new_resource_type = input('Resource Type:', '', 'customlist,KubernetesResourceTypeCompletion')
@@ -597,6 +629,7 @@ fun! s:Vikube(resource_type)
   let b:source_changed = 1
   let b:current_search = g:vikube_search_prefix
   let b:wide = 1
+  let b:context = ''
   let b:all_namespace = 0
   let b:resource_type = a:resource_type
   exec "silent file VikubeExplorer"
@@ -631,6 +664,7 @@ fun! s:Vikube(resource_type)
   nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
   nnoremap <script><buffer> N     :cal <SID>handleToggleAllNamepsace()<CR>
   nnoremap <script><buffer> r     :cal <SID>handleResourceTypeChange()<CR>
+  nnoremap <script><buffer> cx    :cal <SID>handleContextChange()<CR>
 
   nnoremap <script><buffer> ]]     :cal <SID>handleNextResourceType()<CR>
   nnoremap <script><buffer> [[     :cal <SID>handlePrevResourceType()<CR>
