@@ -2,6 +2,7 @@ if !exists("g:vikube_default_logs_tail")
   let g:vikube_default_logs_tail = 100
 endif
 
+
 " Deployment, ReplicaSet, Replication Controller, or Job
 
 let g:kubernetes_scalable_resources = ["deployments", "replicasets", "replicationcontrollers", "jobs"]
@@ -87,15 +88,39 @@ fun! g:KubernetesResourceTypeCompletion(lead, cmd, pos)
   return entries
 endf
 
+fun! g:KubernetesContexts()
+  let out = system("kubectl config get-contexts --no-headers | cut -d' ' -f2- | awk '{ print $1 }'")
+  return split(out)
+endf
+
+fun! g:KubernetesContextCompletion(lead, cmd, pos)
+  let entries = g:KubernetesContexts()
+  cal filter(entries , 'v:val =~ "^' .a:lead. '"')
+  return entries
+endf
+
+fun! s:cmdbase()
+  let cmd = "kubectl"
+  if len(b:context) > 0
+    let cmd = cmd . " --context=" . b:context
+  endif
+  if len(b:namespace) > 0
+    let cmd = cmd . " --namespace=" . b:namespace
+  endif
+  return cmd
+endf
+
 fun! s:source()
-  let cmd = "kubectl get " . b:resource_type
+  let cmd = s:cmdbase()
+
+  let cmd = cmd . " get " . b:resource_type
+
   if b:wide
     let cmd = cmd . " -o wide"
   endif
+
   if b:all_namespace
     let cmd = cmd . " --all-namespaces"
-  else
-    let cmd = cmd . " --namespace=" . b:namespace
   endif
 
   if b:show_all
@@ -124,7 +149,16 @@ fun! s:chooseContainer(containers)
 endf
 
 fun! s:header()
-  return "Kubernetes namespace=" . b:namespace . " resource=" . b:resource_type . " wide=" . b:wide
+  let context = vikube#get_current_context()
+  if exists('b:context') && len(b:context) > 0
+    let context = b:context
+  endif
+  return "Kubernetes "
+        \ . " context=" . context
+        \ . " namespace=" . b:namespace 
+        \ . " resource=" . b:resource_type 
+        \ . " wide=" . b:wide
+        \ . " all=" . b:show_all
 endf
 
 fun! s:help()
@@ -142,6 +176,7 @@ fun! s:help()
     \" N       - Toggle all namespaces\n" .
     \" n       - Switch namespace view\n" .
     \" r       - Switch resource type view\n" .
+    \" cx      - Switch context\n" .
     \" l       - See logs of " . b:resource_type . "\n" .
     \" x       - Execute in the selected pod\n" .
     \" L       - Label " . b:resource_type . "\n" .
@@ -190,7 +225,11 @@ fun! s:deleteResource(line)
   endif
 
   let key = s:key(getline(a:line))
+<<<<<<< HEAD
   let cmd = 'kubectl delete ' . b:resource_type . " --namespace=" . b:namespace . ' ' . shellescape(key)
+=======
+  let cmd = s:cmdbase() . ' delete ' . b:resource_type . ' ' . shellescape(key)
+>>>>>>> dfcea4e89d4aec621480bc1243b214f4d75d845d
   redraw | echomsg cmd
   let out = system(cmd)
   redraw | echomsg split(out, "\n")[0]
@@ -275,7 +314,7 @@ fun! s:handleExec()
   let contcmd = input('Enter the command (' . cont . '): ', 'sh')
   cal inputrestore()
 
-  let cmd = "kubectl exec -it --namespace=" . b:namespace . " --container=" . cont . ' ' . key . ' ' . contcmd
+  let cmd = s:cmdbase() . " exec -it --namespace=" . b:namespace . " --container=" . cont . ' ' . key . ' ' . contcmd
   let termcmd = "terminal ++close " . cmd
   exec termcmd
 endf
@@ -296,15 +335,15 @@ fun! s:handleLogs()
   redraw | echomsg "querying container information..."
 
   if resource_type == "pods"
-    let cmd = "kubectl get --namespace=" . b:namespace . ' ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+    let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
   else
-    let cmd = "kubectl get --namespace=" . b:namespace . ' ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+    let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
   endif
 
   let out = system(cmd)
   let containers = split(out)
   let cont = s:chooseContainer(containers)
-  let cmd = "kubectl logs --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
+  let cmd = s:cmdbase() . " logs --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
 
   botright new
   silent exec "file " . key
@@ -338,7 +377,7 @@ fun! s:handleExplain()
   let namespace = s:namespace(line)
   let key = s:key(line)
   let resource_type = b:resource_type
-  let cmd = 'kubectl explain ' . resource_type
+  let cmd = s:cmdbase() . ' explain ' . resource_type
   redraw | echomsg cmd
 
   let out = system(cmd)
@@ -366,7 +405,7 @@ fun! s:handleDescribe()
   let namespace = s:namespace(line)
   let key = s:key(line)
   let resource_type = b:resource_type
-  let cmd = 'kubectl describe ' . resource_type . ' --namespace=' . namespace . ' ' . key
+  let cmd = s:cmdbase() . ' describe ' . resource_type . ' --namespace=' . namespace . ' ' . key
   redraw | echomsg cmd
 
   let out = system(cmd)
@@ -422,6 +461,18 @@ fun! s:handlePrevNamespace()
   let b:source_changed = 1
   cal s:render()
 endf
+
+fun! s:handleContextChange()
+  cal inputsave()
+  let new_context = input('Context:', '', 'customlist,KubernetesContextCompletion')
+  cal inputrestore()
+  if len(new_context) > 0 && index(g:KubernetesContexts(), new_context) != -1
+    let b:context = new_context
+  endif
+  let b:source_changed = 1
+  cal s:render()
+endf
+
 
 fun! s:handleResourceTypeChange()
   cal inputsave()
@@ -549,11 +600,10 @@ fun! s:render()
   " prepend the help message
   cal s:help()
 
-  cal append(1, "")
   if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
-    cal setline(2, g:vikube_search_prefix)
+    cal append(1, g:vikube_search_prefix)
   else
-    cal setline(2, b:current_search)
+    cal append(1, b:current_search)
   endif
 
   if t:search_inserting
@@ -591,6 +641,7 @@ fun! s:Vikube(resource_type)
   let b:source_changed = 1
   let b:current_search = g:vikube_search_prefix
   let b:wide = 1
+  let b:context = ''
   let b:all_namespace = 0
   let b:resource_type = a:resource_type
   exec "silent file VikubeExplorer"
@@ -625,6 +676,7 @@ fun! s:Vikube(resource_type)
   nnoremap <script><buffer> n     :cal <SID>handleNamespaceChange()<CR>
   nnoremap <script><buffer> N     :cal <SID>handleToggleAllNamepsace()<CR>
   nnoremap <script><buffer> r     :cal <SID>handleResourceTypeChange()<CR>
+  nnoremap <script><buffer> cx    :cal <SID>handleContextChange()<CR>
 
   nnoremap <script><buffer> ]]     :cal <SID>handleNextResourceType()<CR>
   nnoremap <script><buffer> [[     :cal <SID>handlePrevResourceType()<CR>
@@ -645,7 +697,8 @@ fun! s:Vikube(resource_type)
 
   syn match Comment +^#.*+ 
   " syn region Search start="^> .*" end="$" keepend
-  hi CursorLine term=reverse cterm=reverse ctermbg=darkcyan
+  hi CursorLine term=reverse cterm=reverse ctermbg=darkcyan guifg=white guibg=darkcyan
+  hi Cursor term=reverse cterm=reverse ctermbg=darkcyan guifg=white guibg=darkcyan
 endf
 
 com! VikubeNodeList :cal s:Vikube("nodes")
