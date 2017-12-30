@@ -225,11 +225,7 @@ fun! s:deleteResource(line)
   endif
 
   let key = s:key(getline(a:line))
-<<<<<<< HEAD
-  let cmd = 'kubectl delete ' . b:resource_type . " --namespace=" . b:namespace . ' ' . shellescape(key)
-=======
-  let cmd = s:cmdbase() . ' delete ' . b:resource_type . ' ' . shellescape(key)
->>>>>>> dfcea4e89d4aec621480bc1243b214f4d75d845d
+  let cmd = s:cmdbase() . ' delete ' . b:resource_type . " --namespace=" . b:namespace . ' ' . shellescape(key)
   redraw | echomsg cmd
   let out = system(cmd)
   redraw | echomsg split(out, "\n")[0]
