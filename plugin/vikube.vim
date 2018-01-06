@@ -328,7 +328,6 @@ fun! s:handleLogs()
   let resource_type = b:resource_type
   let key = s:key(getline('.'))
 
-  redraw | echomsg "querying container information..."
 
   if resource_type == "pods"
     let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
