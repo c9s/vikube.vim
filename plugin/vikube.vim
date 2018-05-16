@@ -625,13 +625,16 @@ fun! s:render()
   endif
 endf
 
-
 fun! s:Vikube(resource_type)
   tabnew
   let t:search_inserting = 0
   let t:result_window_buf = bufnr('%')
 
   let b:namespace = "default"
+  if exists('g:vikube_use_current_namespace') && g:vikube_use_current_namespace
+      let b:namespace = vikube#get_current_namespace()
+  endif
+
   let b:show_all = 0
   let b:source_changed = 1
   let b:current_search = g:vikube_search_prefix
