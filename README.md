@@ -88,6 +88,14 @@ To change the default tail lines for logs:
 
     g:vikube_default_logs_tail = 100
 
+To use current namespace instead of "default":
+
+    g:vikube_use_current_namespace = 1
+
+To disable the default highlight for CursorLine:
+
+    g:vikube_disable_custom_highlight = 1
+
 Default Mapping
 ---------------
 
