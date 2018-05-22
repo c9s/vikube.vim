@@ -16,3 +16,8 @@ endf
 fun! vikube#get_namespaces()
   return split(system("kubectl get namespace --no-headers | awk '{ print $1 }'"))
 endf
+
+function! vikube#get_current_namespace()
+    return system('kubectl config view -o=jsonpath="{.contexts[?(@.name==\"$(kubectl config current-context)\")].context.namespace}"')
+endfunction
+
