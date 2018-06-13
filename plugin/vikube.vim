@@ -696,7 +696,7 @@ fun! s:Vikube(resource_type)
   syn match Comment +^#.*+ 
   " syn region Search start="^> .*" end="$" keepend
 
-  if !exists('g:vikube_disable_custom_highlight') || ! g:vikube_disable_custom_highlight
+  if exists('g:vikube_enable_custom_highlight') && g:vikube_enable_custom_highlight
       hi CursorLine term=reverse cterm=reverse ctermbg=darkcyan guifg=white guibg=darkcyan
       hi Cursor term=reverse cterm=reverse ctermbg=darkcyan guifg=white guibg=darkcyan
   endif
