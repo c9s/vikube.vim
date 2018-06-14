@@ -588,8 +588,7 @@ fun! s:render()
   put=out
 
   " remove the first empty line
-  redraw
-  normal ggdd
+  silent normal ggdd
 
   " prepend the help message
   cal s:help()
