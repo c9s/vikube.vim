@@ -581,7 +581,7 @@ fun! s:render()
   setlocal modifiable
 
   " clear the buffer
-  silent normal ggdG
+  silent 1,$d
 
   if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
     cal setline(1, g:vikube_search_prefix)
