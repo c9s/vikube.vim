@@ -584,7 +584,6 @@ fun! s:render()
   silent normal ggdG
 
   " draw the result
-  redraw
   put=out
 
   " remove the first empty line
