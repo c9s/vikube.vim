@@ -592,6 +592,7 @@ fun! s:render()
 
   " prepend the help message
   cal s:help()
+  redraw
 
   if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
     cal append(1, g:vikube_search_prefix)
