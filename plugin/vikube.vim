@@ -583,21 +583,18 @@ fun! s:render()
   " clear the buffer
   silent normal ggdG
 
-  " draw the result
-  put=out
-
-  " remove the first empty line
-  silent normal ggdd
+  if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
+    cal setline(1, g:vikube_search_prefix)
+  else
+    cal setline(1, b:current_search)
+  endif
 
   " prepend the help message
   cal s:help()
-  redraw
 
-  if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
-    cal append(1, g:vikube_search_prefix)
-  else
-    cal append(1, b:current_search)
-  endif
+  " draw the result
+  2put=out
+  redraw
 
   if t:search_inserting
     let save_cursor[1] = 2
