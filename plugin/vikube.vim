@@ -5,7 +5,7 @@ endif
 
 " Deployment, ReplicaSet, Replication Controller, or Job
 
-let g:kubernetes_scalable_resources = ["deployments", "replicasets", "replicationcontrollers", "jobs"]
+let g:kubernetes_scalable_resources = ["deployments", "replicasets", "replicationcontrollers", "jobs", "statefulsets"]
 
 let g:kubernetes_resource_aliases = {
       \  'pods': 'po',
@@ -581,8 +581,7 @@ fun! s:render()
   setlocal modifiable
 
   " clear the buffer
-  redraw
-  normal ggdG
+  silent normal ggdG
 
   " draw the result
   redraw
