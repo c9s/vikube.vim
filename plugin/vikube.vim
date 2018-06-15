@@ -729,6 +729,7 @@ fun! s:Vikube(resource_type)
   " Modification Actions
   nnoremap <script><buffer> D     :VikubeDeleteResource<CR>
   vnoremap <script><buffer> D     :VikubeDeleteResource<CR>
+  vnoremap <script><buffer> d     :VikubeDeleteResource<CR>
 
   nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
   nnoremap <script><buffer> S     :cal <SID>handleScale()<CR>
