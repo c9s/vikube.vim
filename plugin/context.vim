@@ -57,7 +57,7 @@ endf
 
 fun! s:render()
   setlocal modifiable
-  normal ggdG
+  silent 1,$d
   let out = s:source()
   put=out
   normal ggdd
@@ -79,6 +79,7 @@ fun! s:VikubeContextList()
   nnoremap <script><buffer> s     :cal <SID>handleSwitchContext()<CR>
   nnoremap <script><buffer> R     :cal <SID>handleRenameContext()<CR>
   nnoremap <script><buffer> D     :cal <SID>handleDeleteContext()<CR>
+  nnoremap <script><buffer> dd    :cal <SID>handleDeleteContext()<CR>
 
   syn match Comment +^#.*+ 
   syn match CurrentContext +^\*.*+
