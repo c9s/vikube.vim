@@ -3,6 +3,134 @@ if !exists("g:vikube_default_logs_tail")
 endif
 
 
+
+
+let s:VTable = {}
+
+fun! s:VTable.source()
+  return "ls -l"
+endf
+
+fun! s:VTable.help()
+endf
+
+fun! s:VTable.render()
+  let save_cursor = getcurpos()
+  if b:source_changed || !exists('b:source_cache')
+    let b:source_cache = self.source()
+    let b:source_changed = 0
+  endif
+
+  let current_search = getline(2)
+  let s = strpart(current_search, len(g:vikube_search_prefix))
+
+  if len(s) > 0
+    let lines = split(b:source_cache, "\n")
+    let rows = lines[1:]
+    cal filter(rows, 'v:val =~ "' . s . '"')
+    let out = join(lines[:0] + rows, "\n")
+  else
+    let out = b:source_cache
+  endif
+
+  setlocal modifiable
+
+  " clear the buffer
+  silent 1,$d
+
+  if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
+    cal setline(1, g:vikube_search_prefix)
+  else
+    cal setline(1, b:current_search)
+  endif
+
+  " prepend the help message
+  cal self.help()
+
+  " draw the result
+  2put=out
+  redraw
+
+  if t:search_inserting
+    let save_cursor[1] = 2
+    if save_cursor[2] < len(g:vikube_search_prefix) + 1
+      let save_cursor[2] = len(g:vikube_search_prefix) + 1
+    endif
+    call setpos('.', save_cursor)
+    setlocal modifiable
+    startinsert
+  else
+    if save_cursor[1] < 4 && line('$') >= 5
+      let save_cursor[1] = 4
+    endif
+
+    call setpos('.', save_cursor)
+
+    " trigger CursorHold event
+    if exists("g:vikube_autoupdate")
+      call feedkeys("\e")
+    endif
+    setlocal nomodifiable
+    " the redraw will flush the autoupdate message
+    redraw | echomsg "list updated at " . strftime("%c")
+  endif
+
+
+endf
+
+
+
+
+let s:VikubeExplorer = copy(s:VTable)
+
+fun! s:VikubeExplorer.source()
+  let cmd = s:cmdbase()
+  let cmd = cmd . " get " . b:resource_type
+  if b:wide
+    let cmd = cmd . " -o wide"
+  endif
+  if b:all_namespace
+    let cmd = cmd . " --all-namespaces"
+  endif
+  if b:show_all
+    let cmd = cmd . " --show-all"
+  endif
+  redraw | echomsg cmd
+  return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+endf
+
+fun! s:VikubeExplorer.help()
+  cal g:Help.reg(s:header(),
+    \" ]]      - Next resource type\n".
+    \" [[      - Previous resource type\n".
+    \" <Right> - Next resource type\n".
+    \" <Left>  - Previous resource type\n".
+    \" }}      - Next namespace\n".
+    \" {{      - Previous namespace type\n".
+    \" u       - Update List\n" .
+    \" e       - Explain the current resource\n" .
+    \" w       - Toggle wide option\n" .
+    \" a       - Toggle show all option\n" .
+    \" N       - Toggle all namespaces\n" .
+    \" n       - Switch namespace view\n" .
+    \" r       - Switch resource type view\n" .
+    \" cx      - Switch context\n" .
+    \" l       - See logs of " . b:resource_type . "\n" .
+    \" x       - Execute in the selected pod\n" .
+    \" L       - Label " . b:resource_type . "\n" .
+    \" S       - Scale " . b:resource_type . "\n" .
+    \" D       - Delete " . b:resource_type . "\n" .
+    \" s       - Describe " . b:resource_type . "\n" .
+    \" Enter   - Describe " . b:resource_type . "\n"
+    \,1)
+endf
+
+" fun! s:VikubeExplorer.render()
+"   call call(s:VTable.render, [], s:VikubeExplorer)
+" endf
+
+
+
 " Deployment, ReplicaSet, Replication Controller, or Job
 
 let g:kubernetes_scalable_resources = ["deployments", "replicasets", "replicationcontrollers", "jobs", "statefulsets"]
@@ -112,21 +240,16 @@ endf
 
 fun! s:source()
   let cmd = s:cmdbase()
-
   let cmd = cmd . " get " . b:resource_type
-
   if b:wide
     let cmd = cmd . " -o wide"
   endif
-
   if b:all_namespace
     let cmd = cmd . " --all-namespaces"
   endif
-
   if b:show_all
     let cmd = cmd . " --show-all"
   endif
-
   redraw | echomsg cmd
   return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
@@ -216,7 +339,7 @@ endf
 fun! s:handleUpdate()
   redraw | echomsg "Updating pod list ..."
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:deleteResource(line)
@@ -243,7 +366,7 @@ fun! s:handleDelete(line1, line2)
   endwhile
 
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleScale()
@@ -271,7 +394,7 @@ fun! s:handleScale()
   redraw | echomsg split(out, "\n")[0]
 
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleLabel()
@@ -289,7 +412,7 @@ fun! s:handleLabel()
   redraw | echomsg split(out, "\n")[0]
 
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleExec()
@@ -432,7 +555,7 @@ fun! s:handleNamespaceChange()
     let b:namespace = new_namespace
   endif
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleNextNamespace()
@@ -443,7 +566,7 @@ fun! s:handleNextNamespace()
   endif
   let b:namespace = namespaces[x]
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handlePrevNamespace()
@@ -454,7 +577,7 @@ fun! s:handlePrevNamespace()
   endif
   let b:namespace = namespaces[x]
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleContextChange()
@@ -465,7 +588,7 @@ fun! s:handleContextChange()
     let b:context = new_context
   endif
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 
@@ -477,7 +600,7 @@ fun! s:handleResourceTypeChange()
     let b:resource_type = new_resource_type
   endif
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 
@@ -490,7 +613,7 @@ fun! s:handlePrevResourceType()
   let b:resource_type = g:kubernetes_common_resource_types[x]
 
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 
@@ -502,7 +625,7 @@ fun! s:handleNextResourceType()
   let b:resource_type = g:kubernetes_common_resource_types[x]
 
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleToggleAllNamepsace()
@@ -513,7 +636,7 @@ fun! s:handleToggleAllNamepsace()
   endif
 
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleToggleShowAll()
@@ -524,7 +647,7 @@ fun! s:handleToggleShowAll()
   endif
 
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleToggleWide()
@@ -535,92 +658,33 @@ fun! s:handleToggleWide()
   endif
 
   let b:source_changed = 1
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleApplySearch()
   let b:current_search = getline(2)
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 
 fun! s:handleStartSearch()
   let t:search_inserting = 1
   setlocal nocursorline
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:handleStopSearch()
   let t:search_inserting = 0
   setlocal cursorline
-  cal s:render()
+  call s:VikubeExplorer.render()
 endf
 
-
-
-
 fun! s:render()
-  let save_cursor = getcurpos()
-  if b:source_changed || !exists('b:source_cache')
-    let b:source_cache = s:source()
-    let b:source_changed = 0
-  endif
-
-  let current_search = getline(2)
-  let s = strpart(current_search, len(g:vikube_search_prefix))
-
-  if len(s) > 0
-    let lines = split(b:source_cache, "\n")
-    let rows = lines[1:]
-    cal filter(rows, 'v:val =~ "' . s . '"')
-    let out = join(lines[:0] + rows, "\n")
-  else
-    let out = b:source_cache
-  endif
-
-  setlocal modifiable
-
-  " clear the buffer
-  silent 1,$d
-
-  if !exists('b:current_search') || len(b:current_search) < len(g:vikube_search_prefix)
-    cal setline(1, g:vikube_search_prefix)
-  else
-    cal setline(1, b:current_search)
-  endif
-
-  " prepend the help message
-  cal s:help()
-
-  " draw the result
-  2put=out
-  redraw
-
-  if t:search_inserting
-    let save_cursor[1] = 2
-    if save_cursor[2] < len(g:vikube_search_prefix) + 1
-      let save_cursor[2] = len(g:vikube_search_prefix) + 1
-    endif
-    call setpos('.', save_cursor)
-    setlocal modifiable
-    startinsert
-  else
-    if save_cursor[1] < 4 && line('$') >= 5
-      let save_cursor[1] = 4
-    endif
-
-    call setpos('.', save_cursor)
-
-    " trigger CursorHold event
-    if exists("g:vikube_autoupdate")
-      call feedkeys("\e")
-    endif
-    setlocal nomodifiable
-    redraw | echomsg "list updated at " . strftime("%c")
-  endif
+  call s:VikubeExplorer.render()
 endf
 
 fun! s:Vikube(resource_type)
+
   tabnew
   let t:search_inserting = 0
   let t:result_window_buf = bufnr('%')
@@ -630,19 +694,31 @@ fun! s:Vikube(resource_type)
       let b:namespace = vikube#get_current_namespace()
   endif
 
+
+  " resource mode related flags
   let b:show_all = 0
   let b:source_changed = 1
   let b:current_search = g:vikube_search_prefix
   let b:wide = 1
   let b:context = ''
   let b:all_namespace = 0
-  let b:resource_type = a:resource_type
-  exec "silent file VikubeExplorer"
-  setlocal noswapfile  
-  setlocal nobuflisted nowrap cursorline nonumber fdc=0 buftype=nofile bufhidden=wipe
-  setlocal cursorline
+
+  if a:resource_type
+    let b:resource_type = a:resource_type
+  else
+    let b:resource_type = "pods"
+  endif
+
+  " set the filename
+  silent exec "file VikubeExplorer"
+
+  cal vikube#buffer#init()
+
+  " setup the updatetime for refresh
   setlocal updatetime=2000
-  cal s:render()
+
+  call s:VikubeExplorer.render()
+
   silent exec "setfiletype vikube-" . b:resource_type
 
   " default local bindings
@@ -653,6 +729,7 @@ fun! s:Vikube(resource_type)
   " Modification Actions
   nnoremap <script><buffer> D     :VikubeDeleteResource<CR>
   vnoremap <script><buffer> D     :VikubeDeleteResource<CR>
+  vnoremap <script><buffer> d     :VikubeDeleteResource<CR>
 
   nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
   nnoremap <script><buffer> S     :cal <SID>handleScale()<CR>
@@ -703,8 +780,8 @@ com! VikubePVCList :cal s:Vikube("persistentvolumeclaims")
 com! VikubeServiceList :cal s:Vikube("services")
 com! VikubeStatefulsetList :cal s:Vikube("statefulsets")
 com! VikubeDeploymentList :cal s:Vikube("deployments")
-com! VikubePodList :cal s:Vikube("pods")
-com! Vikube :cal s:Vikube("pods")
+com! VikubePodList :call s:Vikube("pods")
+com! -nargs=* -complete=customlist,g:KubernetesResourceTypeCompletion Vikube :call s:Vikube(<q-args>)
 
 if exists("g:vikube_autoupdate")
   au! CursorHold VikubeExplorer :cal <SID>render()
