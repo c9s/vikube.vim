@@ -96,6 +96,8 @@ fun! s:VikubeExplorer.source()
     let cmd = cmd . " --show-all"
   endif
   redraw | echomsg cmd
+
+  " sort by the first column
   return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
 endf
 
@@ -679,6 +681,11 @@ fun! s:handleStopSearch()
   call s:VikubeExplorer.render()
 endf
 
+fun! s:autoUpdate()
+  let b:source_changed = 1
+  call s:VikubeExplorer.render()
+endf
+
 fun! s:render()
   call s:VikubeExplorer.render()
 endf
@@ -784,5 +791,5 @@ com! VikubePodList :call s:Vikube("pods")
 com! -nargs=* -complete=customlist,g:KubernetesResourceTypeCompletion Vikube :call s:Vikube(<q-args>)
 
 if exists("g:vikube_autoupdate")
-  au! CursorHold VikubeExplorer :cal <SID>render()
+  au! CursorHold VikubeExplorer :cal <SID>autoUpdate()
 endif
