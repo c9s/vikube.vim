@@ -684,6 +684,7 @@ fun! s:render()
 endf
 
 fun! s:Vikube(resource_type)
+
   tabnew
   let t:search_inserting = 0
   let t:result_window_buf = bufnr('%')
@@ -701,7 +702,12 @@ fun! s:Vikube(resource_type)
   let b:wide = 1
   let b:context = ''
   let b:all_namespace = 0
-  let b:resource_type = a:resource_type
+
+  if a:resource_type
+    let b:resource_type = a:resource_type
+  else
+    let b:resource_type = "pods"
+  endif
 
   " set the filename
   silent exec "file VikubeExplorer"
@@ -773,9 +779,9 @@ com! VikubePVCList :cal s:Vikube("persistentvolumeclaims")
 com! VikubeServiceList :cal s:Vikube("services")
 com! VikubeStatefulsetList :cal s:Vikube("statefulsets")
 com! VikubeDeploymentList :cal s:Vikube("deployments")
-com! VikubePodList :cal s:Vikube("pods")
-com! Vikube :cal s:Vikube("pods")
+com! VikubePodList :call s:Vikube("pods")
+com! -nargs=* -complete=customlist,g:KubernetesResourceTypeCompletion Vikube :call s:Vikube(<q-args>)
 
 if exists("g:vikube_autoupdate")
-  au! CursorHold VikubeExplorer :cal <SID>VikubeExplorer.render()
+  au! CursorHold VikubeExplorer :cal <SID>render()
 endif
