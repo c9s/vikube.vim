@@ -516,6 +516,33 @@ fun! s:handleExplain()
   nnoremap <script><buffer> q :q<CR>
 endf
 
+fun! s:handleDump()
+  if line('.') < 4
+    return
+  endif
+  
+  let line = getline('.')
+  let namespace = s:namespace(line)
+  let key = s:key(line)
+  let resource_type = b:resource_type
+  let cmd = s:cmdbase() . ' get ' . resource_type . ' --namespace=' . namespace . ' -o yaml ' . key
+  redraw | echomsg cmd
+
+  let out = system(cmd)
+  botright new
+  silent exec "file " . key
+  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
+  setlocal wrap nocursorline
+  setlocal buftype=nofile bufhidden=wipe
+  setlocal modifiable
+  silent put=out
+  redraw
+  silent normal ggdd
+  silent setfiletype yaml
+  setlocal nomodifiable
+  nnoremap <script><buffer> q :q<CR>
+endf
+
 fun! s:handleDescribe()
   if line('.') < 4
     return
@@ -743,6 +770,7 @@ fun! s:Vikube(resource_type)
 
   " Actions
   nnoremap <script><buffer> l     :cal <SID>handleLogs()<CR>
+  nnoremap <script><buffer> o     :cal <SID>handleDump()<CR>
   nnoremap <script><buffer> x     :cal <SID>handleExec()<CR>
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
   nnoremap <script><buffer> <CR>  :cal <SID>handleDescribe()<CR>
