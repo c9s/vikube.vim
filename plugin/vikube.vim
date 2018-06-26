@@ -1,20 +1,14 @@
-if !exists("g:vikube_default_logs_tail")
-  let g:vikube_default_logs_tail = 100
-endif
 
+let g:VTable = {}
 
-
-
-let s:VTable = {}
-
-fun! s:VTable.source()
+fun! g:VTable.source()
   return "ls -l"
 endf
 
-fun! s:VTable.help()
+fun! g:VTable.help()
 endf
 
-fun! s:VTable.render()
+fun! g:VTable.render()
   let save_cursor = getcurpos()
   if b:source_changed || !exists('b:source_cache')
     let b:source_cache = self.source()
@@ -74,14 +68,13 @@ fun! s:VTable.render()
     " the redraw will flush the autoupdate message
     redraw | echomsg "list updated at " . strftime("%c")
   endif
-
-
 endf
 
+if !exists("g:vikube_default_logs_tail")
+  let g:vikube_default_logs_tail = 100
+endif
 
-
-
-let s:VikubeExplorer = copy(s:VTable)
+let s:VikubeExplorer = copy(g:VTable)
 
 fun! s:VikubeExplorer.source()
   let cmd = s:cmdbase()
@@ -128,7 +121,7 @@ fun! s:VikubeExplorer.help()
 endf
 
 " fun! s:VikubeExplorer.render()
-"   call call(s:VTable.render, [], s:VikubeExplorer)
+"   call call(g:VTable.render, [], s:VikubeExplorer)
 " endf
 
 
