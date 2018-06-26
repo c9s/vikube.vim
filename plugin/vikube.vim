@@ -537,7 +537,6 @@ fun! s:handleDump()
   setlocal modifiable
   silent put=out
   redraw
-  silent normal ggdd
   silent setfiletype yaml
   setlocal nomodifiable
   nnoremap <script><buffer> q :q<CR>
@@ -564,7 +563,6 @@ fun! s:handleDescribe()
   setlocal modifiable
   silent put=out
   redraw
-  silent normal ggdd
   silent exec "setfiletype kdescribe" . resource_type
   setlocal nomodifiable
 
