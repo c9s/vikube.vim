@@ -71,7 +71,7 @@ fun! g:VTable.render()
 endf
 
 if !exists("g:vikube_default_logs_tail")
-  let g:vikube_default_logs_tail = 100
+  let g:vikube_default_logs_tail = -1
 endif
 
 let s:VikubeExplorer = copy(g:VTable)
@@ -430,9 +430,39 @@ fun! s:handleExec()
   cal inputrestore()
 
   let cmd = s:cmdbase() . " exec -it --namespace=" . b:namespace . " --container=" . cont . ' ' . key . ' ' . contcmd
-  let termcmd = "terminal ++close " . cmd
+  let termcmd = "botright terminal ++close " . cmd
   exec termcmd
 endf
+
+
+fun! s:handleFollowLogs()
+  if line('.') < 4
+    return
+  endif
+  
+  if index(g:kubernetes_loggable_resource_types, b:resource_type) == -1
+    redraw | echomsg "logs are only for " . join(g:kubernetes_loggable_resource_types, ',')
+    return
+  endif
+
+  let resource_type = b:resource_type
+  let key = s:key(getline('.'))
+
+
+  if resource_type == "pods"
+    let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+  else
+    let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+  endif
+
+  let out = system(cmd)
+  let containers = split(out)
+  let cont = s:chooseContainer(containers)
+  let cmd = s:cmdbase() . " logs --follow --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --timestamps --container=" . cont . ' ' . resource_type . '/' . key
+  exec "botright terminal " . cmd
+endf
+
+
 
 fun! s:handleLogs()
   if line('.') < 4
@@ -716,7 +746,7 @@ fun! s:VikubeApply(...)
   let cmd = s:cmdbase() . " apply "
   let cmd = cmd . join(a:000, " ")
   let cmd = cmd . " -f " . file
-  let termcmd = "terminal ++rows=5 " . cmd
+  let termcmd = "botright terminal ++rows=5 " . cmd
   exec termcmd
 endf
 
@@ -725,7 +755,7 @@ fun! s:VikubeReplace(...)
   let cmd = s:cmdbase() . " replace "
   let cmd = cmd . join(a:000, " ")
   let cmd = cmd . " -f " . file
-  let termcmd = "terminal ++rows=5 " . cmd
+  let termcmd = "botright terminal ++rows=5 " . cmd
   exec termcmd
 
 endf
@@ -783,6 +813,7 @@ fun! s:Vikube(resource_type)
 
   " Actions
   nnoremap <script><buffer> l     :cal <SID>handleLogs()<CR>
+  nnoremap <script><buffer> fl     :cal <SID>handleFollowLogs()<CR>
   nnoremap <script><buffer> o     :cal <SID>handleDump()<CR>
   nnoremap <script><buffer> x     :cal <SID>handleExec()<CR>
   nnoremap <script><buffer> u     :cal <SID>handleUpdate()<CR>
