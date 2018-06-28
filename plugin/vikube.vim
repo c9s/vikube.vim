@@ -224,10 +224,11 @@ endf
 
 fun! s:cmdbase()
   let cmd = "kubectl"
-  if len(b:context) > 0
+  if exists('b:context') && len(b:context) > 0
     let cmd = cmd . " --context=" . b:context
   endif
-  if len(b:namespace) > 0
+
+  if exists('b:namespace') && len(b:namespace) > 0
     let cmd = cmd . " --namespace=" . b:namespace
   endif
   return cmd
@@ -456,7 +457,7 @@ fun! s:handleLogs()
   let out = system(cmd)
   let containers = split(out)
   let cont = s:chooseContainer(containers)
-  let cmd = s:cmdbase() . " logs --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --container=" . cont . ' ' . resource_type . '/' . key
+  let cmd = s:cmdbase() . " logs --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --timestamps --container=" . cont . ' ' . resource_type . '/' . key
 
   botright new
   silent exec "file " . key
@@ -708,6 +709,27 @@ fun! s:render()
   call s:VikubeExplorer.render()
 endf
 
+
+
+fun! s:VikubeApply(...)
+  let file = expand('%')
+  let cmd = s:cmdbase() . " apply "
+  let cmd = cmd . join(a:000, " ")
+  let cmd = cmd . " -f " . file
+  let termcmd = "terminal ++rows=5 " . cmd
+  exec termcmd
+endf
+
+fun! s:VikubeReplace(...)
+  let file = expand('%')
+  let cmd = s:cmdbase() . " replace "
+  let cmd = cmd . join(a:000, " ")
+  let cmd = cmd . " -f " . file
+  let termcmd = "terminal ++rows=5 " . cmd
+  exec termcmd
+
+endf
+
 fun! s:Vikube(resource_type)
 
   tabnew
@@ -799,6 +821,12 @@ fun! s:Vikube(resource_type)
       hi Cursor term=reverse cterm=reverse ctermbg=darkcyan guifg=white guibg=darkcyan
   endif
 endf
+
+" YAML file commands
+com! -nargs=* KubeApply :cal s:VikubeApply(<q-args>)
+com! -nargs=* KubeApplyForce :cal s:VikubeApply('--force', <q-args>)
+com! -nargs=* KubeReplace :cal s:VikubeReplace(<q-args>)
+com! -nargs=* KubeReplaceForce :cal s:VikubeReplace('--force', <q-args>)
 
 com! VikubeNodeList :cal s:Vikube("nodes")
 com! VikubePVList :cal s:Vikube("persistentvolumes")
