@@ -67,7 +67,7 @@ VikubeExplorer
 - `u` - Update the current list.
 - `w` - Toggle wide option.
 - `l` - Show logs of the pod
-- `tl` - Open a terminal to follow the logs
+- `fl` - Open a terminal to follow the logs
 - `o` - Get the resource YAML
 - `x` - Execute a command in the container
 - `cx` - Switch context (buffer scope)
