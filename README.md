@@ -64,9 +64,13 @@ VikubeExplorer
 - `n` - Switch namespace.
 - `r` - Switch resource type.
 - `N` - Toggle "all namespaces" option.
-- `u` - Update list.
+- `u` - Update the current list.
 - `w` - Toggle wide option.
-
+- `l` - Show logs of the pod
+- `tl` - Open a terminal to follow the logs
+- `o` - Get the resource YAML
+- `x` - Execute a command in the container
+- `cx` - Switch context (buffer scope)
 - `L` - Label the selected resource.  (Input form: `Label=Value Label2=Value2`)
 - `D` - Delete the selected resource.
 
