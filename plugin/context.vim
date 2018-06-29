@@ -16,12 +16,13 @@ fun! s:canonicalizeRow(row)
 endf
 
 fun! s:fields(row)
-  let matched = s:canonicalizeRow(a:row)
-  return split(matched, '\s\+')
+  let line = s:canonicalizeRow(a:row)
+  return split(line)
 endf
 
 fun! s:key(row)
   let fields = s:fields(a:row)
+  echo fields
   return fields[0]
 endf
 
@@ -30,17 +31,16 @@ fun! s:handleDeleteContext()
   redraw | echomsg key
 
   let out = system('kubectl config delete-context ' . shellescape(key))
-  redraw | echomsg split(out, "\n")[0]
   cal s:render()
+  redraw | echomsg split(out, "\n")[0]
 endf
 
 fun! s:handleSwitchContext()
   let key = s:key(getline('.'))
   redraw | echomsg key
-
   let out = system('kubectl config use-context ' . shellescape(key))
-  redraw | echomsg split(out, "\n")[0]
   cal s:render()
+  redraw | echomsg split(out, "\n")[0]
 endf
 
 fun! s:handleRenameContext()
@@ -51,8 +51,8 @@ fun! s:handleRenameContext()
   cal inputrestore()
 
   let out = system('kubectl config rename-context ' . shellescape(key) . ' ' . shellescape(newName))
-  redraw | echomsg split(out, "\n")[0]
   cal s:render()
+  redraw | echomsg split(out, "\n")[0]
 endf
 
 fun! s:render()
@@ -60,7 +60,6 @@ fun! s:render()
   silent 1,$d
   let out = s:source()
   put=out
-  normal ggdd
   cal s:help()
   redraw
   set nomodifiable
@@ -75,14 +74,18 @@ fun! s:VikubeContextList()
   cal s:render()
   setfiletype kcontextlist
 
-  " local bindings
+  " backward compatible
   nnoremap <script><buffer> s     :cal <SID>handleSwitchContext()<CR>
+
+  " local bindings
+  nnoremap <script><buffer> S     :cal <SID>handleSwitchContext()<CR>
   nnoremap <script><buffer> R     :cal <SID>handleRenameContext()<CR>
   nnoremap <script><buffer> D     :cal <SID>handleDeleteContext()<CR>
   nnoremap <script><buffer> dd    :cal <SID>handleDeleteContext()<CR>
 
-  syn match Comment +^#.*+ 
+  syn match StatusLine +^#.*+ 
   syn match CurrentContext +^\*.*+
-  hi link CurrentContext Identifier
+  hi link CurrentContext PmenuSel
 endf
 com! VikubeContextList :cal s:VikubeContextList()
+com! VikubeContext :cal s:VikubeContextList()

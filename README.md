@@ -49,7 +49,7 @@ Commands
 VikubeContextList
 -----------------
 
-- `s` - Switch to the selected context.
+- `S` - Switch to the selected context.
 - `R` - Rename the selected context.
 - `D` - Delete the selected context.
 

@@ -513,7 +513,7 @@ fun! s:handleLogs()
   let out = system(cmd)
   silent put=out
   redraw
-  silent normal ggdd
+  silent 1,$d
   silent exec "setfiletype vikube-logs"
   setlocal nomodifiable
 
@@ -547,7 +547,7 @@ fun! s:handleExplain()
   setlocal nolist
   silent put=out
   redraw
-  silent normal ggdd
+  silent 1,$d
   silent exec "setfiletype kexplain" . resource_type
   setlocal nomodifiable
   nnoremap <script><buffer> q :q<CR>
@@ -858,7 +858,7 @@ fun! s:Vikube(...)
   au! InsertLeave  <buffer> :cal <SID>handleStopSearch()
   au! CursorMovedI <buffer> :cal <SID>handleApplySearch()
 
-  syn match Comment +^#.*+ 
+  syn match StatusLine +^#.*+ 
   " syn region Search start="^> .*" end="$" keepend
 
   if exists('g:vikube_enable_custom_highlight') && g:vikube_enable_custom_highlight
