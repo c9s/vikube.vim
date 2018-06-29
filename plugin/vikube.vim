@@ -197,7 +197,7 @@ let g:kubernetes_common_resource_types = [
       \"serviceaccounts"]
 
 let g:vikube_search_prefix = '> '
-
+let g:vikube_default_resource_type = 'pods'
 
 fun! g:KubernetesNamespaceCompletion(lead, cmd, pos)
   let entries = vikube#get_namespaces()
