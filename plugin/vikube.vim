@@ -130,6 +130,7 @@ endf
 
 let g:kubernetes_scalable_resources = ["deployments", "replicasets", "replicationcontrollers", "jobs", "statefulsets"]
 
+
 let g:kubernetes_resource_aliases = {
       \  'pods': 'po',
       \  'nodes': 'no',

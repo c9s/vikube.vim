@@ -59,6 +59,7 @@ VikubeExplorer
 - `]]` - Navigate to the next resource type.
 - `[[` - Navigate to the previous resource type.
 
+- `a` - Show all resources.
 - `e` - Explain the current resource type.
 - `s` - Describe the selected resource.
 - `n` - Switch namespace.
@@ -66,13 +67,14 @@ VikubeExplorer
 - `N` - Toggle "all namespaces" option.
 - `u` - Update the current list.
 - `w` - Toggle wide option.
-- `l` - Show logs of the pod
-- `fl` - Open a terminal to follow the logs
-- `o` - Get the resource YAML
-- `x` - Execute a command in the container
-- `cx` - Switch context (buffer scope)
-- `L` - Label the selected resource.  (Input form: `Label=Value Label2=Value2`)
-- `D` - Delete the selected resource.
+- `l` - Show logs of the pod.
+- `fl` - Open a terminal to follow the logs.
+- `o` - Get the resource YAML.
+- `x` - Execute a command in the container.
+- `cx` - Switch context (buffer scope).
+- `L` - Label the selected resource.  (Input form: `Label=Value Label2=Value2`).
+- `D` - Delete the selected resource..
+- `E` - Edit the current resource.
 
 VikubeTop
 ---------
@@ -119,9 +121,17 @@ Default Mapping
 Changelogs
 ----------
 
+### Fri Jun 29 11:26:32 2018
+
+- Fixed resource type handling.
+- Added log follow support.
+- Added resource edit support.
+- Added resource dump support.
+- Added ability to switch buffer-scope kubernetes context.
+
 ### Sun Dec 17 17:04:01 2017
 
-- Change all action keys to lower case but keep the deletion in uppercase.
+- Changed all action keys to lower case but keep the deletion in uppercase.
 
 
 License
