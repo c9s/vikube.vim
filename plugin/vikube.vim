@@ -591,7 +591,7 @@ fun! s:handleDescribe()
   redraw | echomsg cmd
 
   let out = system(cmd)
-  botright new
+  vsplit new
   silent exec "file " . key
   setlocal noswapfile nobuflisted cursorline nonumber fdc=0
   setlocal wrap nocursorline
