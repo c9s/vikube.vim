@@ -772,7 +772,7 @@ fun! s:VikubeReplace(...)
 
 endf
 
-fun! s:Vikube(resource_type)
+fun! s:Vikube(...)
 
   tabnew
   let t:search_inserting = 0
@@ -792,10 +792,10 @@ fun! s:Vikube(resource_type)
   let b:context = ''
   let b:all_namespace = 0
 
-  if a:resource_type
-    let b:resource_type = a:resource_type
+  if a:0 > 0
+    let b:resource_type = a:1
   else
-    let b:resource_type = "pods"
+    let b:resource_type = g:vikube_default_resource_type
   endif
 
   " set the filename
