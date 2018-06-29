@@ -471,7 +471,7 @@ fun! s:handleFollowLogs()
   let containers = split(out)
   let cont = s:chooseContainer(containers)
   let cmd = s:cmdbase() . " logs --follow --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --timestamps --container=" . cont . ' ' . resource_type . '/' . key
-  exec "botright terminal " . cmd
+  exec "botright terminal ++kill=term " . cmd
 endf
 
 
