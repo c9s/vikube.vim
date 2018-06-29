@@ -28,16 +28,15 @@ endf
 
 fun! s:handleDeleteContext()
   let key = s:key(getline('.'))
-  redraw | echomsg key
-
-  let out = system('kubectl config delete-context ' . shellescape(key))
-  cal s:render()
-  redraw | echomsg split(out, "\n")[0]
+  if confirm('Are you sure to delete the context ' . key . '?')
+    let out = system('kubectl config delete-context ' . shellescape(key))
+    cal s:render()
+    redraw | echomsg split(out, "\n")[0]
+  endif
 endf
 
 fun! s:handleSwitchContext()
   let key = s:key(getline('.'))
-  redraw | echomsg key
   let out = system('kubectl config use-context ' . shellescape(key))
   cal s:render()
   redraw | echomsg split(out, "\n")[0]
@@ -45,11 +44,9 @@ endf
 
 fun! s:handleRenameContext()
   let key = s:key(getline('.'))
-
   cal inputsave()
   let newName = input('Context:', key)
   cal inputrestore()
-
   let out = system('kubectl config rename-context ' . shellescape(key) . ' ' . shellescape(newName))
   cal s:render()
   redraw | echomsg split(out, "\n")[0]
