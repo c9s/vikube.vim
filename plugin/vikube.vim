@@ -290,6 +290,7 @@ fun! s:help()
     \" {{      - Previous namespace type\n".
     \" u       - Update List\n" .
     \" e       - Explain the current resource\n" .
+    \" E       - Edit the resource\n" .
     \" w       - Toggle wide option\n" .
     \" a       - Toggle show all option\n" .
     \" N       - Toggle all namespaces\n" .
@@ -410,6 +411,17 @@ fun! s:handleLabel()
   let b:source_changed = 1
   call s:VikubeExplorer.render()
 endf
+
+fun! s:handleEdit()
+  if line('.') < 4
+    return
+  endif
+  let key = s:key(getline('.'))
+  let cmd = s:cmdbase() . ' edit --namespace=' . b:namespace . ' ' . b:resource_type . ' ' . key
+  let termcmd = 'vertical terminal ' . cmd
+  exec termcmd
+endf
+
 
 fun! s:handleExec()
   if line('.') < 4
@@ -810,6 +822,7 @@ fun! s:Vikube(resource_type)
 
   nnoremap <script><buffer> L     :cal <SID>handleLabel()<CR>
   nnoremap <script><buffer> S     :cal <SID>handleScale()<CR>
+  nnoremap <script><buffer> E     :cal <SID>handleEdit()<CR>
 
   " Actions
   nnoremap <script><buffer> l     :cal <SID>handleLogs()<CR>
