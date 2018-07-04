@@ -510,10 +510,10 @@ fun! s:handleLogs()
   setlocal modifiable
 
   redraw | echomsg cmd
+  silent 1,$d
   let out = system(cmd)
   silent put=out
   redraw
-  silent 1,$d
   silent exec "setfiletype vikube-logs"
   setlocal nomodifiable
 
