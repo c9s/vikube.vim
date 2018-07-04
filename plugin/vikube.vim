@@ -774,7 +774,6 @@ fun! s:VikubeReplace(...)
 endf
 
 fun! s:Vikube(...)
-
   tabnew
   let t:search_inserting = 0
   let t:result_window_buf = bufnr('%')
@@ -792,11 +791,9 @@ fun! s:Vikube(...)
   let b:wide = 1
   let b:context = ''
   let b:all_namespace = 0
-
+  let b:resource_type = g:vikube_default_resource_type
   if a:0 > 0
     let b:resource_type = a:1
-  else
-    let b:resource_type = g:vikube_default_resource_type
   endif
 
   " set the filename
