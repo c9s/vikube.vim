@@ -783,7 +783,6 @@ fun! s:Vikube(...)
       let b:namespace = vikube#get_current_namespace()
   endif
 
-
   " resource mode related flags
   let b:show_all = 0
   let b:source_changed = 1
@@ -792,12 +791,14 @@ fun! s:Vikube(...)
   let b:context = ''
   let b:all_namespace = 0
   let b:resource_type = g:vikube_default_resource_type
-  if a:0 > 0
+  if a:0 > 0 && a:1 != ""
     let b:resource_type = a:1
   endif
 
+
+
   " set the filename
-  silent exec "file VikubeExplorer"
+  silent exec "file Vikube"
 
   cal vikube#buffer#init()
 
@@ -806,7 +807,7 @@ fun! s:Vikube(...)
 
   call s:VikubeExplorer.render()
 
-  silent exec "setfiletype vikube-" . b:resource_type
+  silent exec "setfiletype vikube"
 
   " default local bindings
   nnoremap <script><buffer> /     :cal <SID>handleStartSearch()<CR>
