@@ -42,7 +42,7 @@ Commands
 
 - `:VikubeServiceList` - Open the service list buffer.
 
-- `:VikubePVCList` - Open the service list buffer.
+- `:VikubePVCList` - Open the persistent volume list buffer.
 
 - `:VikubeTop` - Open the top buffer.
 
