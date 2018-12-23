@@ -188,13 +188,13 @@ let g:kubernetes_loggable_resource_types = [
 let g:kubernetes_common_resource_types = [
       \"pods",
       \"persistentvolumeclaims",
-      \"persistentvolumes", 
-      \"statefulsets", 
+      \"persistentvolumes",
+      \"statefulsets",
       \"replicasets",
-      \"deployments", 
-      \"endpoints", 
-      \"replicasets", 
-      \"services", 
+      \"deployments",
+      \"endpoints",
+      \"replicasets",
+      \"services",
       \"serviceaccounts"]
 
 let g:vikube_search_prefix = '> '
