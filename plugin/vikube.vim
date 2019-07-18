@@ -90,8 +90,13 @@ fun! s:VikubeExplorer.source()
   endif
   redraw | echomsg cmd
 
+  let sortcmd = cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'"
+
+  " let job = job_start(sortcmd, {"out_cb": "MyHandler"})
+
   " sort by the first column
   return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+
 endf
 
 fun! s:VikubeExplorer.help()
@@ -399,7 +404,7 @@ fun! s:handleLabel()
   if line('.') < 4
     return
   endif
-  
+
   let key = s:key(getline('.'))
 
   cal inputsave()
@@ -583,7 +588,7 @@ fun! s:handleDescribe()
   if line('.') < 4
     return
   endif
-  
+
   let line = getline('.')
   let namespace = s:namespace(line)
   let key = s:key(line)
@@ -592,7 +597,7 @@ fun! s:handleDescribe()
   redraw | echomsg cmd
 
   let out = system(cmd)
-  vsplit new
+  new
   silent exec "file " . key
   setlocal noswapfile nobuflisted cursorline nonumber fdc=0
   setlocal wrap nocursorline
