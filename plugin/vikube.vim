@@ -362,33 +362,25 @@ fun! s:handleUpdate()
   call g:VikubeExplorer.update()
 endf
 
-fun! ExecutedCommandCallback(channel)
-  let lines = []
-  while ch_status(a:channel, {'part': 'out'}) == 'buffered'
-    call add(lines, ch_read(a:channel))
-  endwhile
-  let output = join(lines, "\n") . "\n"
-
-  call g:VikubeExplorer.update()
-endf
-
-fun! s:deleteResourceByLine(line)
-  if a:line < 4
-    return
-  endif
-
-  let key = s:key(getline(a:line))
-  let cmd = s:cmdbase() . ' delete ' . b:resource_type . ' ' . shellescape(key)
-  redraw | echomsg cmd
-  let job = job_start(["bash", "-c", cmd], { "close_cb": "ExecutedCommandCallback" })
-endf
-
 fun! s:deleteResources(keys)
   let keyargs = join(map(a:keys, {_,key -> shellescape(key)}), " ")
   let cmd = s:cmdbase() . ' delete ' . b:resource_type . ' ' . keyargs
   redraw | echomsg cmd
-  let job = job_start(["bash", "-c", cmd], { "close_cb": "ExecutedCommandCallback" })
-  call g:VikubeExplorer.update()
+
+  let job = job_start(["bash", "-c", cmd], {
+        \ "out_io": "buffer",
+        \ "out_name": "",
+        \ })
+
+  let channel = job_getchannel(job)
+  let bufnr = ch_getbufnr(channel, "out")
+  let winnr = winnr()
+  exec "sbuffer " . bufnr
+  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
+  setlocal nowrap nocursorline
+  setlocal buftype=nofile bufhidden=wipe
+
+  exec "wincmd " . winnr
 endf
 
 fun! s:getKeysByLineRange(line1, line2)
