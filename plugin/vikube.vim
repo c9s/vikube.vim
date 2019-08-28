@@ -295,7 +295,17 @@ fun! s:header()
   if exists('b:context') && len(b:context) > 0
     let context = b:context
   endif
-  return "Kubernetes "
+
+  let config = '~/.kube/config'
+  if exists('$KUBECONFIG')
+    let config = expand('$KUBECONFIG')
+  end
+
+  let home = expand('$HOME')
+  let config = substitute(config, '\M' . home, '~', '')
+
+  return "vikube"
+        \ . " config=" . config
         \ . " context=" . context
         \ . " namespace=" . b:namespace 
         \ . " resource=" . b:resource_type 
