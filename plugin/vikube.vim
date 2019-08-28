@@ -1,18 +1,33 @@
 
 let g:VTable = {}
 
-fun! g:VTable.source()
+fun! g:VTable.command()
   return "ls -l"
 endf
 
 fun! g:VTable.help()
 endf
 
+fun! g:VTable.update()
+  let cmd = self.command()
+  let b:job = job_start(cmd, {"close_cb": self.outputHandler })
+  let b:source_changed = 0
+endf
+
+fun! g:VTable.outputHandler(channel)
+  let lines = []
+  while ch_status(a:channel, {'part': 'out'}) == 'buffered'
+    call add(lines, ch_read(a:channel))
+  endwhile
+  let b:source_cache = join(lines, "\n") . "\n"
+  call self.render()
+endf
+
 fun! g:VTable.render()
   let save_cursor = getcurpos()
   if b:source_changed || !exists('b:source_cache')
-    let b:source_cache = self.source()
-    let b:source_changed = 0
+    call self.update()
+    return
   endif
 
   let current_search = getline(2)
@@ -65,8 +80,7 @@ fun! g:VTable.render()
       call feedkeys("\e")
     endif
     setlocal nomodifiable
-    " the redraw will flush the autoupdate message
-    redraw | echomsg "list updated at " . strftime("%c")
+    redraw
   endif
 endf
 
@@ -74,9 +88,16 @@ if !exists("g:vikube_default_logs_tail")
   let g:vikube_default_logs_tail = -1
 endif
 
-let s:VikubeExplorer = copy(g:VTable)
+let g:VikubeExplorer = copy(g:VTable)
 
-fun! s:VikubeExplorer.source()
+fun! g:VikubeExplorer.update()
+  let cmd = self.command()
+  let shellcmd = ["bash", "-c", cmd . " | awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'"]
+  let b:job = job_start(shellcmd, {"close_cb": self.outputHandler })
+  let b:source_changed = 0
+endf
+
+fun! g:VikubeExplorer.command()
   let cmd = s:cmdbase()
   let cmd = cmd . " get " . b:resource_type
   if b:wide
@@ -89,12 +110,10 @@ fun! s:VikubeExplorer.source()
     let cmd = cmd . " --show-all"
   endif
   redraw | echomsg cmd
-
-  " sort by the first column
-  return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+  return cmd
 endf
 
-fun! s:VikubeExplorer.help()
+fun! g:VikubeExplorer.help()
   cal g:Help.reg(s:header(),
     \" ]]      - Next resource type\n".
     \" [[      - Previous resource type\n".
@@ -120,16 +139,12 @@ fun! s:VikubeExplorer.help()
     \,1)
 endf
 
-" fun! s:VikubeExplorer.render()
-"   call call(g:VTable.render, [], s:VikubeExplorer)
-" endf
-
-
-
 " Deployment, ReplicaSet, Replication Controller, or Job
 
-let g:kubernetes_scalable_resources = ["deployments", "replicasets", "replicationcontrollers", "jobs", "statefulsets"]
-
+let g:kubernetes_scalable_resources = [
+  \ "deploy", "deployments", "deployments",
+  \ "replicasets", "replicationcontrollers",
+  \ "jobs", "statefulsets"]
 
 let g:kubernetes_resource_aliases = {
       \  'pods': 'po',
@@ -188,13 +203,13 @@ let g:kubernetes_loggable_resource_types = [
 let g:kubernetes_common_resource_types = [
       \"pods",
       \"persistentvolumeclaims",
-      \"persistentvolumes", 
-      \"statefulsets", 
+      \"persistentvolumes",
+      \"statefulsets",
       \"replicasets",
-      \"deployments", 
-      \"endpoints", 
-      \"replicasets", 
-      \"services", 
+      \"deployments",
+      \"endpoints",
+      \"replicasets",
+      \"services",
       \"serviceaccounts"]
 
 let g:vikube_search_prefix = '> '
@@ -223,6 +238,7 @@ fun! g:KubernetesContextCompletion(lead, cmd, pos)
   return entries
 endf
 
+
 fun! s:cmdbase()
   let cmd = "kubectl"
   if exists('b:context') && len(b:context) > 0
@@ -235,7 +251,7 @@ fun! s:cmdbase()
   return cmd
 endf
 
-fun! s:source()
+fun! s:command()
   let cmd = s:cmdbase()
   let cmd = cmd . " get " . b:resource_type
   if b:wide
@@ -248,7 +264,13 @@ fun! s:source()
     let cmd = cmd . " --show-all"
   endif
   redraw | echomsg cmd
-  return system(cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'")
+  let cmd = cmd . "| awk 'NR == 1; NR > 1 {print $0 | \"sort -b -k1\"}'"
+  return cmd
+endf
+
+fun! s:source()
+  let cmd = s:command()
+  return system(cmd)
 endf
 
 fun! s:chooseContainer(containers)
@@ -337,34 +359,47 @@ endf
 fun! s:handleUpdate()
   redraw | echomsg "Updating pod list ..."
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.update()
 endf
 
-fun! s:deleteResource(line)
-  if a:line < 4
-    return
-  endif
-
-  let key = s:key(getline(a:line))
-  let cmd = s:cmdbase() . ' delete ' . b:resource_type . ' ' . shellescape(key)
+fun! s:deleteResources(keys)
+  let keyargs = join(map(a:keys, {_,key -> shellescape(key)}), " ")
+  let cmd = s:cmdbase() . ' delete ' . b:resource_type . ' ' . keyargs
   redraw | echomsg cmd
-  let out = system(cmd)
-  redraw | echomsg split(out, "\n")[0]
+
+  let job = job_start(["bash", "-c", cmd], {
+        \ "out_io": "buffer",
+        \ "out_name": "",
+        \ })
+
+  let channel = job_getchannel(job)
+  let bufnr = ch_getbufnr(channel, "out")
+  let winnr = winnr()
+  exec "sbuffer " . bufnr
+  setlocal noswapfile nobuflisted cursorline nonumber fdc=0
+  setlocal nowrap nocursorline
+  setlocal buftype=nofile bufhidden=wipe
+
+  exec "wincmd " . winnr
+endf
+
+fun! s:getKeysByLineRange(line1, line2)
+  let keys = []
+  let lnum = a:line1
+  while lnum <= a:line2
+      let key = s:key(getline(lnum))
+      let lnum = lnum + 1
+      call add(keys, key)
+  endwhile
+  return keys
 endf
 
 fun! s:handleDelete(line1, line2)
   if line('.') < 4
     return
   endif
-
-  let lnum = a:line1
-  while lnum <= a:line2
-      call s:deleteResource(lnum)
-      let lnum = lnum + 1
-  endwhile
-
-  let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  let keys = s:getKeysByLineRange(a:line1, a:line2)
+  call s:deleteResources(keys)
 endf
 
 fun! s:handleScale()
@@ -392,14 +427,14 @@ fun! s:handleScale()
   redraw | echomsg split(out, "\n")[0]
 
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleLabel()
   if line('.') < 4
     return
   endif
-  
+
   let key = s:key(getline('.'))
 
   cal inputsave()
@@ -410,7 +445,7 @@ fun! s:handleLabel()
   redraw | echomsg split(out, "\n")[0]
 
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleEdit()
@@ -583,7 +618,7 @@ fun! s:handleDescribe()
   if line('.') < 4
     return
   endif
-  
+
   let line = getline('.')
   let namespace = s:namespace(line)
   let key = s:key(line)
@@ -592,7 +627,7 @@ fun! s:handleDescribe()
   redraw | echomsg cmd
 
   let out = system(cmd)
-  vsplit new
+  new
   silent exec "file " . key
   setlocal noswapfile nobuflisted cursorline nonumber fdc=0
   setlocal wrap nocursorline
@@ -619,7 +654,7 @@ fun! s:handleNamespaceChange()
     let b:namespace = new_namespace
   endif
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleNextNamespace()
@@ -630,7 +665,7 @@ fun! s:handleNextNamespace()
   endif
   let b:namespace = namespaces[x]
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handlePrevNamespace()
@@ -641,7 +676,7 @@ fun! s:handlePrevNamespace()
   endif
   let b:namespace = namespaces[x]
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleContextChange()
@@ -652,7 +687,7 @@ fun! s:handleContextChange()
     let b:context = new_context
   endif
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 
@@ -664,7 +699,7 @@ fun! s:handleResourceTypeChange()
     let b:resource_type = new_resource_type
   endif
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 
@@ -677,7 +712,7 @@ fun! s:handlePrevResourceType()
   let b:resource_type = g:kubernetes_common_resource_types[x]
 
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 
@@ -689,7 +724,7 @@ fun! s:handleNextResourceType()
   let b:resource_type = g:kubernetes_common_resource_types[x]
 
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleToggleAllNamepsace()
@@ -700,7 +735,7 @@ fun! s:handleToggleAllNamepsace()
   endif
 
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleToggleShowAll()
@@ -711,7 +746,7 @@ fun! s:handleToggleShowAll()
   endif
 
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleToggleWide()
@@ -722,34 +757,34 @@ fun! s:handleToggleWide()
   endif
 
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleApplySearch()
   let b:current_search = getline(2)
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 
 fun! s:handleStartSearch()
   let t:search_inserting = 1
   setlocal nocursorline
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:handleStopSearch()
   let t:search_inserting = 0
   setlocal cursorline
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:autoUpdate()
   let b:source_changed = 1
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 fun! s:render()
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 endf
 
 
@@ -805,7 +840,7 @@ fun! s:Vikube(...)
   " setup the updatetime for refresh
   setlocal updatetime=2000
 
-  call s:VikubeExplorer.render()
+  call g:VikubeExplorer.render()
 
   silent exec "setfiletype vikube"
 
