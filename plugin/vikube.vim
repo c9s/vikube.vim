@@ -926,5 +926,5 @@ com! VikubePodList :call s:Vikube("pods")
 com! -nargs=* -complete=customlist,g:KubernetesResourceTypeCompletion Vikube :call s:Vikube(<q-args>)
 
 if exists("g:vikube_autoupdate")
-  au! CursorHold VikubeExplorer :cal <SID>autoUpdate()
+  au! CursorHold Vikube :cal <SID>autoUpdate()
 endif
