@@ -130,6 +130,7 @@ fun! g:VikubeExplorer.help()
     \" r       - Switch resource type view\n" .
     \" cx      - Switch context\n" .
     \" l       - See logs of " . b:resource_type . "\n" .
+    \" fl      - See live logs of " . b:resource_type . "\n" .
     \" x       - Execute in the selected pod\n" .
     \" L       - Label " . b:resource_type . "\n" .
     \" S       - Scale " . b:resource_type . "\n" .
