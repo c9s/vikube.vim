@@ -925,6 +925,10 @@ com! VikubeDeploymentList :cal s:Vikube("deployments")
 com! VikubePodList :call s:Vikube("pods")
 com! -nargs=* -complete=customlist,g:KubernetesResourceTypeCompletion Vikube :call s:Vikube(<q-args>)
 
+if !exists("g:vikube_default_mapping")
+  let g:vikube_default_mapping = 1
+endif
+
 if exists("g:vikube_autoupdate")
   au! CursorHold Vikube :cal <SID>autoUpdate()
 endif

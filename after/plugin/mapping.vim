@@ -1,20 +1,22 @@
+if exists('g:vikube_default_mapping') && g:vikube_default_mapping
 
-" VikubeContextList
-nmap <leader>kc  :VikubeContextList<CR>
+  " VikubeContextList
+  nmap <leader>kc  :VikubeContextList<CR>
 
-" VikubeNodeList
-nmap <leader>kno  :VikubeNodeList<CR>
+  " VikubeNodeList
+  nmap <leader>kno  :VikubeNodeList<CR>
 
-" VikubePodList
-nmap <leader>kpo  :VikubePodList<CR>
+  " VikubePodList
+  nmap <leader>kpo  :VikubePodList<CR>
 
-" VikubePVCList
-nmap <leader>kpvc  :VikubePVCList<CR>
+  " VikubePVCList
+  nmap <leader>kpvc  :VikubePVCList<CR>
 
-nmap <leader>kpv  :VikubePVList<CR>
+  nmap <leader>kpv  :VikubePVList<CR>
 
-" VikubeServiceList
-nmap <leader>ksvc :VikubeServiceList<CR>
+  " VikubeServiceList
+  nmap <leader>ksvc :VikubeServiceList<CR>
 
-" VikubeTop
-nmap <leader>kt  :VikubeTop<CR>
+  " VikubeTop
+  nmap <leader>kt  :VikubeTop<CR>
+endif
