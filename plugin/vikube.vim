@@ -506,15 +506,11 @@ fun! s:handleFollowLogs()
   let resource_type = b:resource_type
   let key = s:key(getline('.'))
 
-
   if resource_type == "pods"
-    let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+    let containers = vikube#get_pod_containers(b:namespace, key)
   else
-    let cmd = s:cmdbase() . ' get ' . resource_type . ' ' . key . " -o=go-template --template '{{range .spec.template.spec.containers}}{{.name}}{{\"\\n\"}}{{end}}'"
+    let containers = vikube#get_deployment_pod_containers(b:namespace, key)
   endif
-
-  let out = system(cmd)
-  let containers = split(out)
   let cont = s:chooseContainer(containers)
   let cmd = s:cmdbase() . " logs --follow --tail=" . g:vikube_default_logs_tail . " --namespace=" . b:namespace . " --timestamps --container=" . cont . ' ' . resource_type . '/' . key
   exec "botright terminal ++kill=term " . cmd
