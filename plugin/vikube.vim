@@ -929,6 +929,6 @@ if !exists("g:vikube_default_mapping")
   let g:vikube_default_mapping = 1
 endif
 
-if exists("g:vikube_autoupdate")
+if exists("g:vikube_autoupdate") && g:vikube_autoupdate
   au! CursorHold Vikube :cal <SID>autoUpdate()
 endif
