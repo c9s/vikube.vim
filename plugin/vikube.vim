@@ -208,7 +208,7 @@ let g:kubernetes_common_resource_types = [
       \"replicasets",
       \"deployments",
       \"endpoints",
-      \"replicasets",
+      \"daemonsets",
       \"services",
       \"serviceaccounts"]
 
