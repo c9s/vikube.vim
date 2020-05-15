@@ -130,6 +130,7 @@ fun! g:VikubeExplorer.help()
     \" r       - Switch resource type view\n" .
     \" cx      - Switch context\n" .
     \" l       - See logs of " . b:resource_type . "\n" .
+    \" fl      - See live logs of " . b:resource_type . "\n" .
     \" x       - Execute in the selected pod\n" .
     \" L       - Label " . b:resource_type . "\n" .
     \" S       - Scale " . b:resource_type . "\n" .
@@ -154,44 +155,7 @@ let g:kubernetes_resource_aliases = {
       \  'persistentvolumes': 'pv'
       \}
 
-let g:kubernetes_resource_types = [
-      \  'certificatesigningrequests',
-      \  'clusterrolebindings',
-      \  'clusterroles',
-      \  'clusters',
-      \  'componentstatuses',
-      \  'configmaps',
-      \  'controllerrevisions',
-      \  'cronjobs',
-      \  'customresourcedefinition',
-      \  'daemonsets',
-      \  'deployments',
-      \  'endpoints',
-      \  'events',
-      \  'horizontalpodautoscalers' ,
-      \  'ingresses' ,
-      \  'jobs',
-      \  'limitranges' ,
-      \  'namespaces' ,
-      \  'networkpolicies' ,
-      \  'nodes',
-      \  'persistentvolumeclaims',
-      \  'persistentvolumes',
-      \  'poddisruptionbudgets',
-      \  'podpreset',
-      \  'pods',
-      \  'podsecuritypolicies' ,
-      \  'podtemplates',
-      \  'replicasets' ,
-      \  'replicationcontrollers' ,
-      \  'resourcequotas',
-      \  'rolebindings',
-      \  'roles',
-      \  'secrets',
-      \  'serviceaccounts',
-      \  'services',
-      \  'statefulsets',
-      \  'storageclasses']
+let g:kubernetes_resource_types = systemlist("kubectl api-resources | awk '{ print $1 }'")
 
 let g:kubernetes_loggable_resource_types = [
       \"pods",
